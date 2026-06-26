@@ -1,7 +1,13 @@
 package ru.vladimir.itemmanager.config;
 
+import java.io.File;
+import java.util.logging.Level;
+
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 
+import ru.vladimir.itemmanager.ItemManager;
 import ru.vladimir.itemmanager.utils.Logger;
 
 public final class ConfigManager {
@@ -12,7 +18,13 @@ public final class ConfigManager {
 
     private ConfigManager() {}
 
-    public static void init() {
+    public static @NotNull ConfigManager getInstance() {
+        if (instance == null)
+            throw new IllegalStateException("Attempted to get instance before it was initialized.");
+        return instance;
+    }
+
+    public static void init(@NotNull ItemManager plugin) {
         if (instance != null) {
             Logger.warn(instance, "Attempted to initialize an instance while it is already initialized.");
             return;
@@ -20,8 +32,8 @@ public final class ConfigManager {
 
         instance = new ConfigManager();
 
-        instance.config = instance.readConfig();
-        instance.messages = instance.readMessages();
+        instance.config = instance.readConfig(YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml")));
+        instance.messages = instance.readMessages(YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "messages.yml")));
 
         Logger.debug(instance, "Initialized successfully.");
     }
@@ -37,20 +49,38 @@ public final class ConfigManager {
         Logger.debug(ConfigManager.class, "Destroyed successfully.");
     }
 
-    private Config readConfig() {
-        // Here we read config.
-        return null;
+    private Config readConfig(FileConfiguration config) {
+        final String levelName = config.getString("logging-level", "INFO");
+        Level level = Level.INFO;
+
+        try {
+            level = Level.parse(levelName);
+        } catch (IllegalArgumentException e) {
+            Logger.warn(this, "Invalid logging level in config: %s. Defaulting to INFO.".formatted(levelName));
+        }
+
+        return new Config(level);
     }
 
-    private Messages readMessages() {
-        // Here we read messages.
-        return null;
-    }
-
-    public static @NotNull ConfigManager getInstance() {
-        if (instance == null)
-            throw new IllegalStateException("Attempted to get instance before it was initialized.");
-        return instance;
+    private Messages readMessages(FileConfiguration config) {
+        return new Messages(
+            config.getString("no-permission", "You do not have permission to do this."),
+            config.getString("plugin-description", "A powerful item management plugin."),
+            config.getString("invalid-command", "Unknown command. Use /itemmanager help."),
+            config.getString("player-only-command", "This command can only be used by players."),
+            config.getString("invalid-arguments", "Invalid arguments. Usage: {USAGE}"),
+            config.getString("must-hold-item", "You must be holding an item."),
+            config.getString("item-registered", "Item {ITEM} registered."),
+            config.getString("item-already-registered", "Item {ITEM} is already registered."),
+            config.getString("player-not-found", "Player {PLAYER} was not found."),
+            config.getString("item-not-found", "Item {ITEM} was not found."),
+            config.getString("item-given", "Gave {AMOUNT}x {ITEM} to {PLAYER}."),
+            config.getString("invalid-amount", "Invalid amount {AMOUNT}. Must be a positive integer."),
+            config.getString("item-list", "Registered items: {ITEMS}"),
+            config.getString("plugin-reloaded", "Plugin reloaded."),
+            config.getString("item-unregistered", "Item {ITEM} unregistered."),
+            config.getString("plugin-help", "To do... (if you see it, I forgot to write it... lol)")
+        );
     }
 
     public @NotNull Config getConfig() {

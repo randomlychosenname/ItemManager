@@ -3,6 +3,7 @@ package ru.vladimir.itemmanager.utils;
 import java.util.logging.Level;
 
 public final class Logger {
+
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger("ItemManager");
     private static Level minLevel = Level.ALL;
 

@@ -5,7 +5,11 @@ import java.util.Map;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
+
 public final class Messager {
+    private static final MiniMessage MINI_MESSAGE_PARSER = MiniMessage.miniMessage();
+
     private Messager() {}
 
     public static void sendMessage(@NotNull CommandSender sender, @NotNull String message) {

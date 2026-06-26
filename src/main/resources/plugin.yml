@@ -52,3 +52,9 @@ permissions:
     default: op
     children:
       itemmanager.command: true
+
+  itemmanager.command.help:
+    description: Allows the use of the /itemmanager help command.
+    default: op
+    children:
+      itemmanager.command: true

@@ -22,14 +22,14 @@ public class ItemManagerCommand implements TabExecutor {
         }
         
         if (args.length == 0) {
-            Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().description());
+            Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().pluginDescription());
             return true;
         }
 
         final var optionalWrapper = CommandService.getInstance().getWrapperForAlias(args[0]);
 
         if (optionalWrapper.isEmpty()) {
-            Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().invalidSubCommand());
+            Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().invalidCommand());
             return true;
         }
 

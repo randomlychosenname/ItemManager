@@ -5,7 +5,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import ru.vladimir.itemmanager.api.ItemManagerApi;
+import ru.vladimir.itemmanager.command.CommandService;
 import ru.vladimir.itemmanager.command.ItemManagerCommand;
+import ru.vladimir.itemmanager.config.ConfigManager;
 
 public final class ItemManager extends JavaPlugin {
     
@@ -17,6 +19,9 @@ public final class ItemManager extends JavaPlugin {
         instance = this;
         api = new ItemManagerApi(this);
 
+        ConfigManager.init(this);
+        CommandService.init();
+
         final PluginCommand command = this.getCommand("itemmanager");
         if (command == null) throw new IllegalStateException("Command 'itemmanager' not found in plugin.yml");
         
@@ -26,12 +31,16 @@ public final class ItemManager extends JavaPlugin {
     }
 
     public void onReload() {
-
+        onDisable();
+        onEnable();
     }
 
     @Override
     public void onDisable() {
-        
+        CommandService.destroy();
+        ConfigManager.destroy();
+        api = null;
+        instance = null;
     }
 
     public static @NotNull ItemManager getInstance() {

@@ -11,7 +11,8 @@ import org.jetbrains.annotations.NotNull;
 import ru.vladimir.itemmanager.command.list.AddItem;
 import ru.vladimir.itemmanager.command.list.GiveItem;
 import ru.vladimir.itemmanager.command.list.ListItems;
-import ru.vladimir.itemmanager.command.list.ReloadConfig;
+import ru.vladimir.itemmanager.command.list.PluginHelp;
+import ru.vladimir.itemmanager.command.list.ReloadPlugin;
 import ru.vladimir.itemmanager.command.list.RemoveItem;
 import ru.vladimir.itemmanager.utils.Logger;
 
@@ -39,7 +40,7 @@ public final class CommandService {
         instance.subCommandRegistry = new ConcurrentHashMap<>();
         instance.registerSubCommands();
 
-        Logger.info(instance, "Successfully initialized.");
+        Logger.debug(instance, "Successfully initialized.");
     }
 
     public static void destroy() {
@@ -50,7 +51,7 @@ public final class CommandService {
 
         instance = null;
 
-        Logger.info(CommandService.class, "Successfully destroyed.");
+        Logger.debug(CommandService.class, "Successfully destroyed.");
     }
 
     private void registerSubCommands() {
@@ -66,8 +67,11 @@ public final class CommandService {
         final var listWrapper = new SubCommandWrapper(new ListItems(), Set.of("list"), new Permission("itemmanager.command.list"));
         registerSubCommand(listWrapper.aliases(), listWrapper);
 
-        final var reloadWrapper = new SubCommandWrapper(new ReloadConfig(), Set.of("reload"), new Permission("itemmanager.command.reload"));
+        final var reloadWrapper = new SubCommandWrapper(new ReloadPlugin(), Set.of("reload"), new Permission("itemmanager.command.reload"));
         registerSubCommand(reloadWrapper.aliases(), reloadWrapper);
+
+        final var helpWrapper = new SubCommandWrapper(new PluginHelp(), Set.of("help"), new Permission("itemmanager.command.help"));
+        registerSubCommand(helpWrapper.aliases(), helpWrapper);
     }
 
     private void registerSubCommand(Iterable<String> aliases, SubCommandWrapper wrapper) {

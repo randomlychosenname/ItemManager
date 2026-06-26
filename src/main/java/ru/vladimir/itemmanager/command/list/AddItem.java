@@ -42,7 +42,7 @@ public class AddItem implements SubCommand {
         if (success) {
             Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().itemRegistered(), Map.of("ITEM", itemName));
         } else {
-            Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().itemAlreadyExists(), Map.of("ITEM", itemName));
+            Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().itemAlreadyRegistered(), Map.of("ITEM", itemName));
         }
     }
 
