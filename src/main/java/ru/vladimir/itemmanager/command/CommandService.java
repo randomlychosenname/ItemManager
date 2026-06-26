@@ -16,12 +16,13 @@ import ru.vladimir.itemmanager.command.list.RemoveItem;
 import ru.vladimir.itemmanager.utils.Logger;
 
 public final class CommandService {
+
     private static CommandService instance;
     private Map<String, SubCommandWrapper> subCommandRegistry;
 
     private CommandService() {}
 
-    public static @NotNull CommandService getInstance() {
+    static @NotNull CommandService getInstance() {
         if (instance == null)
             throw new IllegalStateException("Attempted to get instance before it was initialized.");
         return instance;
@@ -72,6 +73,7 @@ public final class CommandService {
     private void registerSubCommand(Iterable<String> aliases, SubCommandWrapper wrapper) {
         for (final String alias : aliases) {
             final boolean isAdded = subCommandRegistry.putIfAbsent(alias, wrapper) == null;
+
             if (isAdded)
                 Logger.debug(this, "Registered subcommand with alias: %s.".formatted(alias));
             else

@@ -23,7 +23,7 @@ public final class ItemManagerApi {
     }
 
     public boolean registerCustomItem(@NotNull String itemId, @NotNull ItemStack itemStack) {}
-    public boolean registerCustomItem(@NotNull String itemId, @NotNull Byte itemData) {}
+    public boolean registerCustomItem(@NotNull String itemId, byte @NotNull [] itemData) {}
     public boolean unregisterCustomItem(@NotNull String itemId) {}
     public boolean isCustomItem(@NotNull String itemId) {}
     public @NotNull Optional<CustomItem> getCustomItem(@NotNull String itemId) {}
