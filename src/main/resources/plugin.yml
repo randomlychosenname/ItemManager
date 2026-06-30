@@ -1,15 +1,14 @@
-#file: noinspection SpellCheckingInspection
 name: ItemManager
 api-version: 1.21
 version: ${version}
 main: ru.vladimir.itemmanager.ItemManager
-description: A fascinating plugin!
+description: A powerful item management plugin.
 website: https://github.com/randomlychosenname/ItemManager
 
 commands:
   itemmanager:
     description: The main command for ItemManager.
-    usage: /<command> <add|remove|give|list|reload>
+    usage: /<command> <add|remove|give|list|help|reload>
     permission: itemmanager.command
     permission-message: You do not have permission to use this command.
     aliases: [im, imanager, itemm]

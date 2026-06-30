@@ -23,7 +23,7 @@ public final class ItemManagerApi {
         this.itemBuilder = itemBuilder;
     }
     
-    public void reloadConfig() {
+    public void reloadPlugin() {
         plugin.onReload();
     }
 

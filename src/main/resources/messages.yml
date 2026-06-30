@@ -2,22 +2,27 @@
 # = ItemManager | Messages = #
 # ========================== #
 
-no-permission: "You do not have permission to do this."
-invalid-arguments: "Invalid arguments. Usage: {USAGE}" # Placeholders: {USAGE}
-invalid-command: "Unknown command. Use /itemmanager help."
-player-only-command: "This command can only be used by players."
+#
+# Learn more about formatting using MiniMessage: https://docs.papermc.io/adventure/minimessage/format/
+# Don't know the supported placeholders? Check here: https://github.com/randomlychosenname/ItemManager/tree/main/guides/PLACEHOLDERS.md
+#
 
-must-hold-item: "You must be holding an item."
-item-already-registered: "Item {ITEM} is already registered." # Placeholders: {ITEM}
-item-not-found: "Item {ITEM} was not found."                  # Placeholders: {ITEM}
-player-not-found: "Player {PLAYER} was not found."            # Placeholders: {PLAYER}
-invalid-amount: "Invalid amount {AMOUNT}. Must be a positive integer." # Placeholders: {AMOUNT}
+no-permission: "<red>You do not have permission to run this command!</red>"
+invalid-arguments: "<red>Invalid arguments.</red> Usage: <gold>{USAGE}</gold>" # Placeholders: {USAGE}
+invalid-command: "<red>Unknown command.<red> Use <gold>/itemmanager help.</gold>"
+player-only-command: "<red>This command can only be used by players.</red>"
 
-item-registered: "Item {ITEM} registered."       # Placeholders: {ITEM}
-item-unregistered: "Item {ITEM} unregistered."   # Placeholders: {ITEM}
-item-given: "Gave {AMOUNT}x {ITEM} to {PLAYER}." # Placeholders: {AMOUNT}, {ITEM}, {PLAYER}
+must-hold-item: "<gold>You must be holding an item.</gold>"
+item-already-registered: "<gold>Item {ITEM} is already registered.</gold>"         # Placeholders: {ITEM}
+item-not-found: "<gold>Item {ITEM} was not found.</gold>"                          # Placeholders: {ITEM}
+player-not-found: "<gold>Player {PLAYER} was not found.</gold>"                    # Placeholders: {PLAYER}
+invalid-amount: "<gold>Invalid amount {AMOUNT}. Must be a positive integer.</gold" # Placeholders: {AMOUNT}
 
-plugin-description: "A powerful item management plugin."
-plugin-help: "To do... (if you see it, I forgot to write it... lol)"
-item-list: "Registered items: {ITEMS}" # Placeholders: {ITEMS}
-plugin-reloaded: "Plugin reloaded."
+item-registered: "<green>Item {ITEM} registered.</green>"       # Placeholders: {ITEM}
+item-unregistered: "<green>Item {ITEM} unregistered.</green>"   # Placeholders: {ITEM}
+item-given: "<green>Gave {AMOUNT}x {ITEM} to {PLAYER}.</green>" # Placeholders: {AMOUNT}, {ITEM}, {PLAYER}
+
+plugin-description: "A <gold>powerful</gold> item management plugin."
+plugin-help: "<red>To do... (if you see it, I forgot to write it... lol)</red>"
+item-list: "Registered items: <gold>{ITEMS}</gold>" # Placeholders: {ITEMS}
+plugin-reloaded: "<green>Plugin reloaded.</green>"

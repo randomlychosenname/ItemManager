@@ -10,31 +10,34 @@ import ru.vladimir.itemmanager.command.ItemManagerCommand;
 import ru.vladimir.itemmanager.config.ConfigManager;
 import ru.vladimir.itemmanager.storage.CustomItemBuilder;
 import ru.vladimir.itemmanager.storage.CustomItemStorage;
+import ru.vladimir.itemmanager.utils.Logger;
 
 public final class ItemManager extends JavaPlugin {
-    
-    private static ItemManager instance;
     private static ItemManagerApi api;
     
     @Override
     public void onEnable() {
-        instance = this;
+        Logger.debug(this, "Loading up...");
 
-        ConfigManager.init(this);
+        final ConfigManager configManager = new ConfigManager(this);
+
+        Logger.setLevel(configManager.getGeneralConfig().loggingLevel());
 
         final CustomItemStorage itemStorage = new CustomItemStorage(this);
         final CustomItemBuilder itemBuilder = new CustomItemBuilder(itemStorage);
 
         api = new ItemManagerApi(this, itemStorage, itemBuilder);
 
-        CommandService.init();
+        final CommandService commandService = new CommandService(configManager.getMessageConfig());
+        final ItemManagerCommand commandHandler = new ItemManagerCommand(commandService, configManager.getMessageConfig());
 
         final PluginCommand command = this.getCommand("itemmanager");
         if (command == null) throw new IllegalStateException("Command 'itemmanager' not found in plugin.yml");
-        
-        final ItemManagerCommand commandHandler = new ItemManagerCommand();
+
         command.setExecutor(commandHandler);
         command.setTabCompleter(commandHandler);
+
+        Logger.debug(this, "Loaded successfully.");
     }
 
     public void onReload() {
@@ -44,21 +47,12 @@ public final class ItemManager extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        CommandService.destroy();
         api = null;
-        ConfigManager.destroy();
-        instance = null;
-    }
-
-    public static @NotNull ItemManager getInstance() {
-        if (instance == null) 
-            throw new IllegalStateException("Attempted to get instance before it was initialized.");
-        return instance;
     }
 
     public static @NotNull ItemManagerApi getApi() {
         if (api == null) 
-            throw new IllegalStateException("Attempted to get API before it was available.");
+            throw new IllegalStateException("Attempted to get API before it was initialized.");
         return api;
     }
 }

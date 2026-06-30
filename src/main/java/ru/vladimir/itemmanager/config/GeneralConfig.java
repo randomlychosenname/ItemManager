@@ -4,6 +4,6 @@ import java.util.logging.Level;
 
 import org.jetbrains.annotations.NotNull;
 
-public record Config(
+public record GeneralConfig(
     @NotNull Level loggingLevel
 ) {}

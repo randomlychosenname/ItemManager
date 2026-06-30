@@ -3,33 +3,44 @@ package ru.vladimir.itemmanager.command.list;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import org.jetbrains.annotations.Unmodifiable;
 import ru.vladimir.itemmanager.ItemManager;
 import ru.vladimir.itemmanager.command.SubCommand;
-import ru.vladimir.itemmanager.config.ConfigManager;
-import ru.vladimir.itemmanager.utils.Logger;
-import ru.vladimir.itemmanager.utils.Messager;
+import ru.vladimir.itemmanager.config.MessageConfig;
+import ru.vladimir.itemmanager.utils.Messenger;
 
-public class GiveItem implements SubCommand {
+public final class GiveItem implements SubCommand {
+
+    private static final Set<String> ALIASES = Set.of("give");
+    private static final Permission PERMISSION = new Permission("itemmanager.command.give");
+    private final MessageConfig messages;
+
+    public GiveItem(@NotNull MessageConfig messages) {
+        this.messages = messages;
+    }
 
     @Override
     public void onCommand(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
         if (args.length < 3 || args.length > 4) {
-            Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().invalidArguments(), Map.of("USAGE", "/itemmanager give <player> <name> [amount]"));
+            Messenger.sendMessage(sender, messages.invalidArguments(), Map.of("USAGE", "/itemmanager give <player> <name> [amount]"));
             return;
         }
 
         final String targetPlayerName = args[1];
-        final Player targetPlayer = sender.getServer().getPlayer(targetPlayerName);
+        final Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
 
         if (targetPlayer == null) {
-            Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().playerNotFound(), Map.of("PLAYER", targetPlayerName));
+            Messenger.sendMessage(sender, messages.playerNotFound(), Map.of("PLAYER", targetPlayerName));
             return;
         }
 
@@ -37,7 +48,7 @@ public class GiveItem implements SubCommand {
         final Optional<ItemStack> optionalItem = ItemManager.getApi().getCustomItem(itemName);
 
         if (optionalItem.isEmpty()) {
-            Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().itemNotFound(), Map.of("ITEM", itemName));
+            Messenger.sendMessage(sender, messages.itemNotFound(), Map.of("ITEM", itemName));
             return;
         }
 
@@ -49,7 +60,7 @@ public class GiveItem implements SubCommand {
             try {
                 itemAmount = Integer.parseInt(args[3]);
             } catch (NumberFormatException e) {
-                Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().invalidAmount(), Map.of("AMOUNT", args[3]));
+                Messenger.sendMessage(sender, messages.invalidAmount(), Map.of("AMOUNT", args[3]));
                 return;
             }
         }
@@ -62,7 +73,7 @@ public class GiveItem implements SubCommand {
             targetPlayer.getWorld().dropItemNaturally(targetPlayer.getLocation(), entry.getValue());
         }
 
-        Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().itemGiven(), Map.of("PLAYER", targetPlayerName, "ITEM", itemName, "AMOUNT", String.valueOf(itemAmount)));
+        Messenger.sendMessage(sender, messages.itemGiven(), Map.of("PLAYER", targetPlayerName, "ITEM", itemName, "AMOUNT", String.valueOf(itemAmount)));
     }
 
     @Override
@@ -74,5 +85,13 @@ public class GiveItem implements SubCommand {
             return List.copyOf(ItemManager.getApi().getAllCustomItemIds());
 
         return List.of();
+    }
+
+    public static @NotNull @Unmodifiable Set<String> getAliases() {
+        return ALIASES;
+    }
+
+    public static @NotNull Permission getPermission() {
+        return PERMISSION;
     }
 }

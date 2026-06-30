@@ -7,17 +7,17 @@ import org.jetbrains.annotations.NotNull;
 
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
-public final class Messager {
+public final class Messenger {
     private static final MiniMessage MINI_MESSAGE_PARSER = MiniMessage.miniMessage();
 
-    private Messager() {}
+    private Messenger() {}
 
     public static void sendMessage(@NotNull CommandSender sender, @NotNull String message) {
         sendMessage(sender, message, Map.of());
     }
 
-    public static void sendMessage(@NotNull CommandSender sender, @NotNull String message, @NotNull Map<String, String> params) {
-        for (final var entry : params.entrySet()) {
+    public static void sendMessage(@NotNull CommandSender sender, @NotNull String message, @NotNull Map<String, String> args) {
+        for (final var entry : args.entrySet()) {
             message = message.replace("{" + entry.getKey() + "}", entry.getValue());
         }
 

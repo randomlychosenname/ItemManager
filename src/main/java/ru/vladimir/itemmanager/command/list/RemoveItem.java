@@ -2,22 +2,33 @@ package ru.vladimir.itemmanager.command.list;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.permissions.Permission;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import org.jetbrains.annotations.Unmodifiable;
 import ru.vladimir.itemmanager.ItemManager;
 import ru.vladimir.itemmanager.command.SubCommand;
-import ru.vladimir.itemmanager.config.ConfigManager;
-import ru.vladimir.itemmanager.utils.Messager;
+import ru.vladimir.itemmanager.config.MessageConfig;
+import ru.vladimir.itemmanager.utils.Messenger;
 
-public class RemoveItem implements SubCommand {
+public final class RemoveItem implements SubCommand {
+
+    private static final Set<String> ALIASES = Set.of("remove");
+    private static final Permission PERMISSION = new Permission("itemmanager.command.remove");
+    private final MessageConfig messages;
+
+    public RemoveItem(@NotNull MessageConfig messages) {
+        this.messages = messages;
+    }
 
     @Override
     public void onCommand(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
         if (args.length != 2) {
-            Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().invalidArguments(), Map.of("USAGE", "/itemmanager remove <name>"));
+            Messenger.sendMessage(sender, messages.invalidArguments(), Map.of("USAGE", "/itemmanager remove <name>"));
             return;
         }
 
@@ -26,17 +37,24 @@ public class RemoveItem implements SubCommand {
         final boolean success = ItemManager.getApi().unregisterCustomItem(itemName);
 
         if (success) {
-            Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().itemUnregistered(), Map.of("ITEM", itemName));
+            Messenger.sendMessage(sender, messages.itemUnregistered(), Map.of("ITEM", itemName));
         } else {
-            Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().itemNotFound(), Map.of("ITEM", itemName));
+            Messenger.sendMessage(sender, messages.itemNotFound(), Map.of("ITEM", itemName));
         }
     }
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
-        if (args.length == 2)
-            return List.copyOf(ItemManager.getApi().getAllCustomItemIds());
+        if (args.length == 2) return List.copyOf(ItemManager.getApi().getAllCustomItemIds());
 
         return List.of();
+    }
+
+    public static @NotNull @Unmodifiable Set<String> getAliases() {
+        return ALIASES;
+    }
+
+    public static @NotNull Permission getPermission() {
+        return PERMISSION;
     }
 }

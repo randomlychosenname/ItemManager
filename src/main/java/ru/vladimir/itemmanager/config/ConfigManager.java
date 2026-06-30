@@ -12,98 +12,95 @@ import ru.vladimir.itemmanager.utils.Logger;
 
 public final class ConfigManager {
 
-    private static ConfigManager instance;
-    private Config config;
-    private Messages messages;
+    private static final String GENERAL_CONFIG_FILE_NAME = "config.yml";
+    private static final String MESSAGE_CONFIG_FILE_NAME = "messages.yml";
+    private final GeneralConfig generalConfig;
+    private final MessageConfig messageConfig;
 
-    private ConfigManager() {}
+    public ConfigManager(@NotNull ItemManager plugin) {
+        Logger.debug(this, "Initializing...");
 
-    public static @NotNull ConfigManager getInstance() {
-        if (instance == null)
-            throw new IllegalStateException("Attempted to get instance before it was initialized.");
-        return instance;
+        this.generalConfig = parseGeneralConfig(getGeneralFileConfig(plugin));
+        this.messageConfig = parseMessageConfig(getMessageFileConfig(plugin));
+
+        Logger.debug(this, "Initialized successfully.");
     }
 
-    public static void init(@NotNull ItemManager plugin) {
-        if (instance != null) {
-            Logger.warn(instance, "Attempted to initialize an instance while it is already initialized.");
-            return;
-        }
+    private FileConfiguration getGeneralFileConfig(ItemManager plugin) {
+        final File configFile = new File(plugin.getDataFolder(), GENERAL_CONFIG_FILE_NAME);
 
-        instance = new ConfigManager();
-
-        final File configFile = new File(plugin.getDataFolder(), "config.yml");
         if (!configFile.exists()) {
-            Logger.info(instance, "Config file is not found. Creating a new one...");
-            plugin.saveResource("config.yml", false);
+            Logger.info(this, "'%s' does not exist. A default one will be created.".formatted(GENERAL_CONFIG_FILE_NAME));
+            plugin.saveResource(GENERAL_CONFIG_FILE_NAME, false);
         }
 
-        final File messagesFile = new File(plugin.getDataFolder(), "messages.yml");
-        if (!messagesFile.exists()) {
-            Logger.info(instance, "Messages file is not found. Creating a new one...");
-            plugin.saveResource("messages.yml", false);
-        }
-
-        instance.config = instance.readConfig(YamlConfiguration.loadConfiguration(configFile));
-        instance.messages = instance.readMessages(YamlConfiguration.loadConfiguration(messagesFile));
-
-        Logger.debug(instance, "Initialized successfully.");
+        return YamlConfiguration.loadConfiguration(configFile);
     }
 
-    public static void destroy() {
-        if (instance == null) {
-            Logger.warn(ConfigManager.class, "Attempted to destroy an instance while there is none.");
-            return;
+    private FileConfiguration getMessageFileConfig(ItemManager plugin) {
+        final File configFile = new File(plugin.getDataFolder(), MESSAGE_CONFIG_FILE_NAME);
+
+        if (!configFile.exists()) {
+            Logger.info(this, "'%s' does not exist. A default one will be created.".formatted(MESSAGE_CONFIG_FILE_NAME));
+            plugin.saveResource(MESSAGE_CONFIG_FILE_NAME, false);
         }
 
-        instance = null;
-
-        Logger.debug(ConfigManager.class, "Destroyed successfully.");
+        return YamlConfiguration.loadConfiguration(configFile);
     }
 
-    private Config readConfig(FileConfiguration config) {
-        final String levelName = config.getString("logging-level", "INFO");
-        Level level = Level.INFO;
+    private GeneralConfig parseGeneralConfig(FileConfiguration config) {
+        final String levelName = config.getString("logging-level");
+
+        if (levelName == null) {
+            Logger.warn(this, "Failed to parse logging level in '%s': Level not found.".formatted(GENERAL_CONFIG_FILE_NAME));
+            return new GeneralConfig(Level.INFO);
+        }
 
         try {
-            level = Level.parse(levelName);
+            return new GeneralConfig(Level.parse(levelName));
         } catch (IllegalArgumentException e) {
-            Logger.warn(this, "Invalid logging level in config: %s. Defaulting to INFO.".formatted(levelName));
+            Logger.warn(this, "Failed to parse logging level: Invalid level '%s'.".formatted(levelName));
+            return new GeneralConfig(Level.INFO);
         }
-
-        return new Config(level);
     }
 
-    private Messages readMessages(FileConfiguration config) {
-        return new Messages(
-            config.getString("no-permission", "You do not have permission to do this."),
-            config.getString("plugin-description", "A powerful item management plugin."),
-            config.getString("invalid-command", "Unknown command. Use /itemmanager help."),
-            config.getString("player-only-command", "This command can only be used by players."),
-            config.getString("invalid-arguments", "Invalid arguments. Usage: {USAGE}"),
-            config.getString("must-hold-item", "You must be holding an item."),
-            config.getString("item-registered", "Item {ITEM} registered."),
-            config.getString("item-already-registered", "Item {ITEM} is already registered."),
-            config.getString("player-not-found", "Player {PLAYER} was not found."),
-            config.getString("item-not-found", "Item {ITEM} was not found."),
-            config.getString("item-given", "Gave {AMOUNT}x {ITEM} to {PLAYER}."),
-            config.getString("invalid-amount", "Invalid amount {AMOUNT}. Must be a positive integer."),
-            config.getString("item-list", "Registered items: {ITEMS}"),
-            config.getString("plugin-reloaded", "Plugin reloaded."),
-            config.getString("item-unregistered", "Item {ITEM} unregistered."),
-            config.getString("plugin-help", "To do... (if you see it, I forgot to write it... lol)")
+    private MessageConfig parseMessageConfig(FileConfiguration config) {
+        return new MessageConfig(
+                getMessage(config, "no-permission"),
+                getMessage(config, "plugin-description"),
+                getMessage(config, "invalid-command"),
+                getMessage(config, "player-only-command"),
+                getMessage(config, "invalid-arguments"),
+                getMessage(config, "must-hold-item"),
+                getMessage(config, "item-registered"),
+                getMessage(config, "item-already-registered"),
+                getMessage(config, "player-not-found"),
+                getMessage(config, "item-not-found"),
+                getMessage(config, "item-given"),
+                getMessage(config, "invalid-amount"),
+                getMessage(config, "item-list"),
+                getMessage(config, "plugin-reloaded"),
+                getMessage(config, "item-unregistered"),
+                getMessage(config, "plugin-help")
         );
     }
 
-    public @NotNull Config getConfig() {
-        if (instance.config == null)
-            throw new IllegalStateException("Attempted to get config before it was initialized.");
-        return instance.config;
+    private String getMessage(FileConfiguration config, String key) {
+        final String value = config.getString(key);
+
+        if (value == null) {
+            Logger.warn(this, "Failed to parse '%s' in '%s': Message not found. Using default.".formatted(key, MESSAGE_CONFIG_FILE_NAME));
+            return MessageConfig.DEFAULT_MESSAGES.get(key);
+        }
+
+        return value;
     }
 
-    public @NotNull Messages getMessages() {
-        if (instance.messages == null)
-            throw new IllegalStateException("Attempted to get messages before they were initialized.");
-        return instance.messages;
+    public @NotNull GeneralConfig getGeneralConfig() {
+        return generalConfig;
+    }
+
+    public @NotNull MessageConfig getMessageConfig() {
+        return messageConfig;
     }
 }

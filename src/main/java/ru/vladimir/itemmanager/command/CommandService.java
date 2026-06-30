@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.command.CommandSender;
-import org.bukkit.permissions.Permission;
 import org.jetbrains.annotations.NotNull;
 
 import ru.vladimir.itemmanager.command.list.AddItem;
@@ -16,74 +15,50 @@ import ru.vladimir.itemmanager.command.list.ListItems;
 import ru.vladimir.itemmanager.command.list.PluginHelp;
 import ru.vladimir.itemmanager.command.list.ReloadPlugin;
 import ru.vladimir.itemmanager.command.list.RemoveItem;
+import ru.vladimir.itemmanager.config.MessageConfig;
 import ru.vladimir.itemmanager.utils.Logger;
 
 public final class CommandService {
+    private final Map<String, SubCommandWrapper> subCommandRegistry;
 
-    private static CommandService instance;
-    private Map<String, SubCommandWrapper> subCommandRegistry;
+    public CommandService(@NotNull MessageConfig messages) {
+        Logger.debug(this, "Initializing...");
 
-    private CommandService() {}
+        this.subCommandRegistry = new ConcurrentHashMap<>();
 
-    static @NotNull CommandService getInstance() {
-        if (instance == null)
-            throw new IllegalStateException("Attempted to get instance before it was initialized.");
-        return instance;
+        registerSubCommands(messages);
+
+        Logger.debug(this, "Initialized successfully.");
     }
 
-    public static void init() {
-        if (instance != null) {
-            Logger.warn(instance, "Attempted to initialize an instance while it is already initialized.");
-            return;
-        }
-
-        instance = new CommandService();
-
-        instance.subCommandRegistry = new ConcurrentHashMap<>();
-        instance.registerSubCommands();
-
-        Logger.debug(instance, "Successfully initialized.");
-    }
-
-    public static void destroy() {
-        if (instance == null) {
-            Logger.warn(CommandService.class, "Attempted to destroy an instance while there is none.");
-            return;
-        }
-
-        instance = null;
-
-        Logger.debug(CommandService.class, "Successfully destroyed.");
-    }
-
-    private void registerSubCommands() {
-        final var addWrapper = new SubCommandWrapper(new AddItem(), Set.of("add"), new Permission("itemmanager.command.add"));
+    private void registerSubCommands(MessageConfig messages) {
+        final var addWrapper = new SubCommandWrapper(new AddItem(messages), AddItem.getAliases(), AddItem.getPermission());
         registerSubCommand(addWrapper.aliases(), addWrapper);
 
-        final var removeWrapper = new SubCommandWrapper(new RemoveItem(), Set.of("remove"), new Permission("itemmanager.command.remove"));
+        final var removeWrapper = new SubCommandWrapper(new RemoveItem(messages), RemoveItem.getAliases(), RemoveItem.getPermission());
         registerSubCommand(removeWrapper.aliases(), removeWrapper);
 
-        final var giveWrapper = new SubCommandWrapper(new GiveItem(), Set.of("give"), new Permission("itemmanager.command.give"));
+        final var giveWrapper = new SubCommandWrapper(new GiveItem(messages), GiveItem.getAliases(), GiveItem.getPermission());
         registerSubCommand(giveWrapper.aliases(), giveWrapper);
 
-        final var listWrapper = new SubCommandWrapper(new ListItems(), Set.of("list"), new Permission("itemmanager.command.list"));
+        final var listWrapper = new SubCommandWrapper(new ListItems(messages), ListItems.getAliases(), ListItems.getPermission());
         registerSubCommand(listWrapper.aliases(), listWrapper);
 
-        final var reloadWrapper = new SubCommandWrapper(new ReloadPlugin(), Set.of("reload"), new Permission("itemmanager.command.reload"));
+        final var reloadWrapper = new SubCommandWrapper(new ReloadPlugin(messages), ReloadPlugin.getAliases(), ReloadPlugin.getPermission());
         registerSubCommand(reloadWrapper.aliases(), reloadWrapper);
 
-        final var helpWrapper = new SubCommandWrapper(new PluginHelp(), Set.of("help"), new Permission("itemmanager.command.help"));
+        final var helpWrapper = new SubCommandWrapper(new PluginHelp(messages), PluginHelp.getAliases(), PluginHelp.getPermission());
         registerSubCommand(helpWrapper.aliases(), helpWrapper);
     }
 
-    private void registerSubCommand(Iterable<String> aliases, SubCommandWrapper wrapper) {
+    private void registerSubCommand(Set<String> aliases, SubCommandWrapper wrapper) {
         for (final String alias : aliases) {
-            final boolean isAdded = subCommandRegistry.putIfAbsent(alias, wrapper) == null;
+            if (subCommandRegistry.containsKey(alias)) {
+                Logger.warn(this, "Failed to add alias '%s': Already registered.".formatted(alias));
+                continue;
+            }
 
-            if (isAdded)
-                Logger.debug(this, "Registered subcommand with alias: %s.".formatted(alias));
-            else
-                Logger.warn(this, "Attempted to register subcommand with alias: %s, but it is already registered.".formatted(alias));
+            subCommandRegistry.put(alias, wrapper);
         }
     }
 
@@ -94,8 +69,9 @@ public final class CommandService {
     Set<String> getAliasesFor(CommandSender sender) {
         final Set<String> aliases = new HashSet<>();
 
-        for (final var entry : instance.subCommandRegistry.entrySet()) {
+        for (final var entry : subCommandRegistry.entrySet()) {
             if (!sender.hasPermission(entry.getValue().permission())) continue;
+
             aliases.add(entry.getKey());
         }
 

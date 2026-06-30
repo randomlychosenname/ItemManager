@@ -8,35 +8,43 @@ import org.bukkit.command.TabExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import ru.vladimir.itemmanager.config.ConfigManager;
-import ru.vladimir.itemmanager.utils.Messager;
+import ru.vladimir.itemmanager.config.MessageConfig;
+import ru.vladimir.itemmanager.utils.Messenger;
 
-public class ItemManagerCommand implements TabExecutor {
+public final class ItemManagerCommand implements TabExecutor {
+
     private static final String PRIMARY_PERMISSION = "itemmanager.command";
+    private final CommandService service;
+    private final MessageConfig messages;
+
+    public ItemManagerCommand(@NotNull CommandService service, @NotNull MessageConfig messages) {
+        this.service = service;
+        this.messages = messages;
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
         if (!sender.hasPermission(PRIMARY_PERMISSION)) {
-            Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().noPermission());
+            Messenger.sendMessage(sender, messages.noPermission());
             return true;
         }
         
         if (args.length == 0) {
-            Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().pluginDescription());
+            Messenger.sendMessage(sender, messages.pluginDescription());
             return true;
         }
 
-        final var optionalWrapper = CommandService.getInstance().getWrapperForAlias(args[0]);
+        final var optionalWrapper = service.getWrapperForAlias(args[0]);
 
         if (optionalWrapper.isEmpty()) {
-            Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().invalidCommand());
+            Messenger.sendMessage(sender, messages.invalidCommand());
             return true;
         }
 
         final var wrapper = optionalWrapper.get();
 
         if (!sender.hasPermission(wrapper.permission())) {
-            Messager.sendMessage(sender, ConfigManager.getInstance().getMessages().noPermission());
+            Messenger.sendMessage(sender, messages.noPermission());
             return true;
         }
 
@@ -51,9 +59,9 @@ public class ItemManagerCommand implements TabExecutor {
             return List.of();
 
         if (args.length == 1)
-            return List.copyOf(CommandService.getInstance().getAliasesFor(sender));
+            return List.copyOf(service.getAliasesFor(sender));
 
-        final var optionalWrapper = CommandService.getInstance().getWrapperForAlias(args[0]);
+        final var optionalWrapper = service.getWrapperForAlias(args[0]);
 
         if (optionalWrapper.isEmpty())
             return List.of();

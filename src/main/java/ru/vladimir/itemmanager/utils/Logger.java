@@ -49,8 +49,11 @@ public final class Logger {
     }
 
     private static String getOriginName(Object o) {
-        if (o == null) return "Unknown";
-        if (o instanceof String) return o.toString();
-        return o.getClass().getSimpleName();
+        return switch (o) {
+            case null -> "Unknown";
+            case String ignored -> o.toString();
+            case Class<?> clazz -> clazz.getSimpleName();
+            default -> o.getClass().getSimpleName();
+        };
     }
 }
