@@ -3,6 +3,7 @@ package ru.vladimir.itemmanager.storage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,6 +23,8 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -81,7 +84,6 @@ public final class CustomItemStorage {
         serializeItemIntoSection(sectionToCopyFrom, item);
 
         final Set<String> sectionToCopyFromKeys = sectionToCopyFrom.getKeys(true);
-
         if (sectionToCopyFromKeys.isEmpty()) {
             Logger.warn(this, "Failed to serialize '%s' into section.".formatted(itemId));
             return false;
@@ -90,7 +92,7 @@ public final class CustomItemStorage {
         final ConfigurationSection sectionToCopyTo = itemConfig.createSection(itemId);
 
         for (final String key : sectionToCopyFromKeys) {
-            final var value = sectionToCopyFrom.get(key);
+            final Object value = sectionToCopyFrom.get(key);
             sectionToCopyTo.set(key, value);
         }
 
@@ -155,7 +157,7 @@ public final class CustomItemStorage {
     @NotNull Optional<ItemStack> getCustomItem(@NotNull String itemId) {
         if (!isCustomItem(itemId)) return Optional.empty();
 
-        return Optional.ofNullable(ItemStack.deserializeBytes(itemRegistry.get(itemId)));
+        return Optional.of(ItemStack.deserializeBytes(itemRegistry.get(itemId)));
     }
 
     public @NotNull @Unmodifiable Set<String> getCustomItemIds() {
@@ -165,7 +167,7 @@ public final class CustomItemStorage {
     private byte[] deserializeItemEntryIntoBytes(String itemId, ConfigurationSection itemEntry) {
         final String materialName = itemEntry.getString("material");
         if (materialName == null) {
-            Logger.warn(this, "Failed to parse item entry '%s': Material name not found.".formatted(itemId));
+            Logger.warn(this, "Failed to parse '%s': No material name.".formatted(itemId));
             return null;
         }
 
@@ -174,96 +176,215 @@ public final class CustomItemStorage {
         try {
             material = Material.valueOf(materialName);
         } catch (IllegalArgumentException e) {
-            Logger.warn(this, "Failed to parse item's entry '%s': Invalid material name '%s'.".formatted(itemId, materialName));
+            Logger.warn(this, "Failed to parse '%s': Bad material name '%s'.".formatted(itemId, materialName));
             return null;
         }
 
         final String rawDisplayName = itemEntry.getString("name");
         if (rawDisplayName == null) {
-            Logger.warn(this, "Failed to parse item's entry '%s': Item name not found.".formatted(itemId));
+            Logger.warn(this, "Failed to parse '%s': No item name.".formatted(itemId));
             return null;
         }
 
         final Component displayName = MINI_MESSAGE_PARSER.deserialize(rawDisplayName);
 
-        final List<String> rawLore = itemEntry.getStringList("lore");
-        final List<Component> lore = new ArrayList<>();
+        final List<?> rawLore = itemEntry.getList("lore");
+        if (rawLore == null) {
+            Logger.warn(this, "Failed to parse '%s': No lore.".formatted(itemId));
+            return null;
+        }
 
-        for (final String rawLine : rawLore) {
-            lore.add(MINI_MESSAGE_PARSER.deserialize(rawLine));
+        if (rawLore.size() > 256) {
+            Logger.warn(this, "Lore of '%s' exceeds the line limit (256). Extra lines will be truncated.");
+
+            for (int lineCount = 256; lineCount < rawLore.size(); lineCount++) {
+                rawLore.remove(lineCount);
+            } 
+        }
+
+        final Component[] lore = new Component[256]; // 256 is max lines an item lore can have in the game.
+
+        for (short lineCount = 0; lineCount < rawLore.size(); lineCount++) {
+            final Object rawSupposedLine = rawLore.get(lineCount);
+
+            if (!(rawSupposedLine instanceof final String rawLine)) {
+                Logger.warn(this, "Failed to parse the '%d' line of lore of '%s': Not a string '%s'.".formatted(lineCount, itemId, rawSupposedLine));
+                continue;
+            }
+
+            lore[lineCount] = MINI_MESSAGE_PARSER.deserialize(rawLine);
         }
 
         final List<?> rawEnchantments = itemEntry.getMapList("enchantments");
         if (rawEnchantments == null) {
-            Logger.warn(this, "Failed to parse item's entry '%s': Enchantments not found.".formatted(itemId));
+            Logger.warn(this, "Failed to parse '%s': Enchantments not found.".formatted(itemId));
             return null;
         }
 
-        final List<EnchantmentEntry> enchantments = new ArrayList<>();
-        for (final Object entry : rawEnchantments) {
-
-            if (!(entry instanceof final Map<?, ?> properties)) {
-                Logger.warn(this, "Failed to parse enchantment's entry of item's entry '%s': '%s' is not entry.".formatted(itemId, entry));
+        final Set<EnchantmentEntry> enchantments = new HashSet<>();
+        final Set<String> addedEnchantments = new HashSet<>();
+    
+        for (final Object rawEnchantment : rawEnchantments) {
+            
+            if (!(rawEnchantment instanceof final Map<?, ?> entry)) {
+                Logger.warn(this, "Failed to parse enchantment of '%s': '%s' is not entry.".formatted(itemId, rawEnchantment));
                 continue;
             }
 
-            if (properties.size() != 2) {
-                Logger.warn(this, "Failed to parse enchantment's entry of item's entry '%s': Must contain key and level, but has '%s' instead.".formatted(itemId, properties));
+            if (entry.size() != 2) {
+                Logger.warn(this, "Failed to parse enchantment of '%s': '%s' is not valid entry.".formatted(itemId, entry));
                 continue;
             }
 
-            final String enchantmentKey = String.valueOf(properties.get("key")).strip().toLowerCase();
-            final int enchantmentLevel;
+            final String key = String.valueOf(entry.get("key"));
+
+            if (addedEnchantments.contains(key)) {
+                Logger.warn(this, "Failed to parse enchantment '%s' of '%s': A duplicate.".formatted(key, itemId));
+                continue;
+            }
+
+            final Object supposedLevel = entry.get("level");
+            final int level;
 
             try {
-                enchantmentLevel = (int) properties.get("level");
+                level = (short) supposedLevel;
             } catch (ClassCastException e) {
-                Logger.warn(this, "Failed to parse enchantment's entry '%s' of item's entry '%s': Invalid level of '%s'.".formatted(enchantmentKey, itemId, properties.get("level")));
+                Logger.warn(this, "Failed to parse enchantment '%s' of '%s': Invalid level '%s'.".formatted(key, itemId, supposedLevel));
                 continue;
             }
 
-            enchantments.add(new EnchantmentEntry(enchantmentKey, enchantmentLevel));
+            if (level < 0 || level > 255) {
+                Logger.warn(this, "Enchantment '%s' of '%s' has a level beyond the cap (%d). It may cause inconsistent results.".formatted(key, itemId, supposedLevel));
+            }
+
+            enchantments.add(new EnchantmentEntry(key, level));
+            addedEnchantments.add(key);
         }
 
         final List<?> rawAttributes = itemEntry.getMapList("attributes");
         if (rawAttributes == null) {
-            Logger.warn(this, "Failed to parse item's entry '%s': Attributes not found.".formatted(itemId));
+            Logger.warn(this, "Failed to parse '%s': Attributes not found.".formatted(itemId));
             return null;
         }
 
-        final List<AttributeEntry> attributes = new ArrayList<>();
-        for (final Object entry : rawAttributes) {
+        final Set<AttributeEntry> attributes = new HashSet<>();
+        final Set<String> addedAttributes = new HashSet<>();
 
-            if (!(entry instanceof final Map<?, ?> properties)) {
-                Logger.warn(this, "Failed to parse attribute entry of item's entry '%s': '%s' is not entry.".formatted(itemId, entry));
+        for (final Object rawAttribute : rawAttributes) {
+
+            if (!(rawAttribute instanceof final Map<?, ?> entry)) {
+                Logger.warn(this, "Failed to parse attribute of '%s': '%s' is not entry.".formatted(itemId, rawAttribute));
                 continue;
             }
 
-            if (properties.size() != 3) {
-                Logger.warn(this, "Failed to parse antribute entry of item's entry '%s': It must contain attribute, modifier, level, but it has '%s' instead.".formatted(properties));
+            if (entry.size() != 3) {
+                Logger.warn(this, "Failed to parse antribute of '%s': '%s' is not valid entry.".formatted(itemId, entry));
                 continue;
             }
 
-            final String attributeKey = String.valueOf(properties.get("key")).strip().toLowerCase();
-            // Operation operation, double modifier
+            final String key = String.valueOf(entry.get("key"));
+            
+            if (addedAttributes.contains(key)) {
+                Logger.warn(this, "Failed to parse attribute '%s' of '%s': A duplicate.".formatted(key, itemId));
+                continue;
+            }
+
+            final Object supposedRawModifiers = entry.get("modifiers");
+
+            if (!(supposedRawModifiers instanceof final List rawModifiers)) {
+                Logger.warn(this, "Failed to parse attribute '%s' of '%s': '%s' is invalid modifiers.".formatted(key, itemId, supposedRawModifiers));
+                continue;
+            }
+
+            final List<AttributeModifierEntry> modifiers = new ArrayList<>();
+
+            for (final Object rawModifier : rawModifiers) {
+
+                if (!(rawModifier instanceof final Map<?, ?> modifierEntry)) {
+                    Logger.warn(this, "Failed to parse attribute modifier of '%s' of '%s': '%s' is not entry.".formatted(key, itemId, rawModifier));
+                    continue;
+                }
+
+                if (modifierEntry.size() < 2 || modifierEntry.size() > 3) {
+                    Logger.warn(this, "Failed to parse attribute modifier of '%s' of '%s': '%s' is not valid entry.".formatted(key, itemId, modifierEntry));
+                    continue;
+                }
+
+                final Object supposedAmount = modifierEntry.get("amount");
+                final double amount;
+
+                try {
+                    amount = (double) supposedAmount;
+                } catch (IllegalArgumentException e) {
+                    Logger.warn(this, "Failed to parse attribute modifier of '%s' of '%s': '%s' is not valid amount.".formatted(key, itemId, supposedAmount));
+                    continue;
+                }
+
+                final Object supposedSlotGroupName = modifierEntry.get("slot");
+                final String slotGroupName = supposedSlotGroupName == null ? null : String.valueOf(supposedSlotGroupName);
+
+                modifiers.add(new AttributeModifierEntry(
+                    slotGroupName, 
+                    String.valueOf(modifierEntry.get("operation")), 
+                    amount
+                ));
+            }
+
+            attributes.add(new AttributeEntry(key, modifiers));
+            addedAttributes.add(key);
         }
 
-        // Effects, attributes, keys
+        final List<?> rawKeys = itemEntry.getList("keys");
+        if (rawKeys == null) {
+            Logger.warn(this, "Failed to parse '%s': Keys not found.".formatted(itemId));
+            return null;
+        }
 
-        final ItemStack item = ItemStack.of(Material.DIRT);
+        final Set<NamespacedKey> keys = new HashSet<>();
+        final Set<String> addedKeys = new HashSet<>();
+
+        for (final Object supposedRawKey : rawKeys) {
+
+            if (!(supposedRawKey instanceof final String rawKey)) {
+                Logger.warn(this, "Failed to parse key of '%s': '%s' is not key.".formatted(itemId, supposedRawKey));
+                continue;
+            }
+
+            if (addedKeys.contains(rawKey)) {
+                Logger.warn(this, "Failed to parse key '%s' of '%s': A duplicate.".formatted(rawKey, itemId));
+                continue;
+            }
+
+            final String[] splitKey = rawKey.split(":");
+
+            if (splitKey.length > 2) {
+                Logger.warn(this, "Failed to parse key '%s' of '%s': Invalid format.".formatted(rawKey, itemId));
+                continue;
+            }
+
+            if (splitKey.length == 1) {
+                keys.add(new NamespacedKey(plugin, splitKey[0]));
+            } else {
+                keys.add(new NamespacedKey(splitKey[0], splitKey[1]));
+            }
+
+            addedKeys.add(rawKey);
+        }
+
+        final ItemStack item = ItemStack.of(material);
         final ItemMeta itemMeta = item.getItemMeta();
 
         itemMeta.displayName(displayName);
-        itemMeta.lore(lore);
+        itemMeta.lore(List.of(lore));
 
         for (final EnchantmentEntry entry : enchantments) {
 
             final Enchantment enchantment = RegistryAccess.registryAccess()
                 .getRegistry(RegistryKey.ENCHANTMENT)
-                .get(new NamespacedKey("minecraft", entry.key().strip().toLowerCase()));
+                .get(new NamespacedKey("minecraft", entry.key()));
 
             if (enchantment == null) {
-                Logger.warn(this, "Failed to parse an enchantment '%s' of item's entry '%s': Invalid enchantment.".formatted(entry.key().strip().toLowerCase(), itemId));
+                Logger.warn(this, "Failed to parse enchantment '%s' of '%s': Invalid enchantment.".formatted(entry.key(), itemId));
                 continue;
             }
 
@@ -272,44 +393,38 @@ public final class CustomItemStorage {
 
         for (final AttributeEntry entry : attributes) {
 
-            final String attributeKey = entry.key().strip().toLowerCase();
+            final String key = entry.key();
             final Attribute attribute = RegistryAccess.registryAccess()
                 .getRegistry(RegistryKey.ATTRIBUTE)
-                .get(new NamespacedKey("minecraft", attributeKey));
+                .get(new NamespacedKey("minecraft", key));
 
             for (final AttributeModifierEntry modifierEntry : entry.modifiers()) {
-                final String modifierOperationName = modifierEntry.operation().strip().toUpperCase();
+
+                final String modifierOperationName = modifierEntry.operationName();
                 final Operation modifierOperation;
 
                 try {
                     modifierOperation = Operation.valueOf(modifierOperationName);
                 } catch (IllegalArgumentException e) {
-                    Logger.warn(this, "Failed to parse attribute modifier of attribute's entry '%s' of item's entry '%s': Invalid operation name '%s'.".formatted(attributeKey, itemId, modifierOperationName));
+                    Logger.warn(this, "Failed to parse modifier of attribute '%s' of '%s': '%s' is not valid operation.".formatted(key, itemId, modifierOperationName));
                     continue;
                 }
 
-                final String slotGroupName = modifierEntry.slot() != null ? modifierEntry.slot().strip().toUpperCase() : null;
-                EquipmentSlotGroup slotGroup = null;
-
-                if (slotGroupName != null) {
-                    try {
-                        slotGroup = EquipmentSlotGroup.getByName(slotGroupName);
-                    } catch (IllegalArgumentException e) {
-                        Logger.warn(this, "Failed to parse attribute modifier of attribute's entry '%s' of item's entry '%s': Invalid equipment slot name '%s'.".formatted(attributeKey, itemId, slotGroupName));
-                        continue;
-                    }
-                }
-
-                final AttributeModifier modifier;
+                final String slotGroupName = modifierEntry.slotGroupName();
+                final EquipmentSlotGroup slotGroup = slotGroupName == null ? null : EquipmentSlotGroup.getByName(slotGroupName);
 
                 if (slotGroup == null) {
-                    modifier = new AttributeModifier(new NamespacedKey(plugin, UUID.randomUUID().toString()), modifierEntry.amount(), modifierOperation);
+                    itemMeta.addAttributeModifier(attribute, new AttributeModifier(new NamespacedKey(plugin, UUID.randomUUID().toString()), modifierEntry.amount(), modifierOperation));
                 } else {
-                    modifier = new AttributeModifier(new NamespacedKey(plugin, UUID.randomUUID().toString()), modifierEntry.amount(), modifierOperation, slotGroup);
+                    itemMeta.addAttributeModifier(attribute, new AttributeModifier(new NamespacedKey(plugin, UUID.randomUUID().toString()), modifierEntry.amount(), modifierOperation, slotGroup));
                 }
-
-                itemMeta.addAttributeModifier(attribute, modifier);
             }
+        }
+
+        final PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+
+        for (final NamespacedKey key : keys) {
+            container.set(key, PersistentDataType.BOOLEAN, true);
         }
 
         item.setItemMeta(itemMeta);
@@ -357,7 +472,24 @@ public final class CustomItemStorage {
         section.set("enchantments", rawEnchantments);
     }
 
-    private record EnchantmentEntry(String key, int level) {}
-    private record AttributeEntry(String key, List<AttributeModifierEntry> modifiers) {}
-    private record AttributeModifierEntry(String slot, String operation, double amount) {}
+    private record EnchantmentEntry(String key, int level) {
+        private EnchantmentEntry(String key, int level) {
+            this.key = key.strip().toLowerCase();
+            this.level = level;
+        }
+    }
+
+    private record AttributeEntry(String key, List<AttributeModifierEntry> modifiers) {
+        private AttributeEntry(String key, List<AttributeModifierEntry> modifiers) {
+            this.key = key.strip().toLowerCase();
+            this.modifiers = modifiers;
+        }
+    }
+    private record AttributeModifierEntry(String slotGroupName, String operationName, double amount) {
+        private AttributeModifierEntry(String slotGroupName, String operationName, double amount) {
+            this.slotGroupName = slotGroupName == null ? null : slotGroupName.strip().toUpperCase();
+            this.operationName = operationName.strip().toUpperCase();
+            this.amount = amount;
+        }
+    }
 }
