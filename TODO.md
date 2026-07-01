@@ -6,7 +6,8 @@ A todo list dedicated for the project.
 
 These tasks currently in progress.
 
-- [ ] Nothing much.
+- [ ] Finish guides
+- [ ] Implement update checker
 
 ## In future
 
