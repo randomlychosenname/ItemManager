@@ -24,7 +24,7 @@ public final class UpdateChecker {
         try {
            currentVersion = Integer.parseInt(currentVersionString);
         } catch (NumberFormatException e) {
-            Logger.error(UpdateChecker.class, "Failed to parse current version: %s".formatted(currentVersionString));
+            Logger.getInstance().error(UpdateChecker.class, "Failed to parse current version: %s".formatted(currentVersionString));
             return true;
         }
 
@@ -42,13 +42,13 @@ public final class UpdateChecker {
             final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() != 200) {
-                Logger.error(UpdateChecker.class, "Failed to fetch latest release. Status code: %d.".formatted(response.statusCode()));
+                Logger.getInstance().error(UpdateChecker.class, "Failed to fetch latest release. Status code: %d.".formatted(response.statusCode()));
                 return null;
             }
 
             return response.body();
         } catch (IOException | InterruptedException e) {
-            Logger.error(UpdateChecker.class, "Failed to fetch latest release.", e);
+            Logger.getInstance().error(UpdateChecker.class, "Failed to fetch latest release.", e);
             return null;
         }
     }
@@ -56,7 +56,7 @@ public final class UpdateChecker {
     private static int extractLatestVersion(String release) {
         final int tagKeyIndex = release.indexOf(TAG_NAME_KEY);
         if (tagKeyIndex == -1) {
-            Logger.error(UpdateChecker.class, "Failed to extract tag name from latest release: No tag key found.");
+            Logger.getInstance().error(UpdateChecker.class, "Failed to extract tag name from latest release: No tag key found.");
             return -1;
         }
 
@@ -68,7 +68,7 @@ public final class UpdateChecker {
         try {
             return Integer.parseInt(tagName);
         } catch (NumberFormatException e) {
-            Logger.error(UpdateChecker.class, "Failed to parse tag name of latest release: %s.".formatted(tagName));
+            Logger.getInstance().error(UpdateChecker.class, "Failed to parse tag name of latest release: %s.".formatted(tagName));
             return -1;
         }
     }

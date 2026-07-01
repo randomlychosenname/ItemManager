@@ -1,8 +1,6 @@
 package ru.vladimir.itemmanager.config;
 
 import java.io.File;
-import java.util.Locale;
-import java.util.logging.Level;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -19,19 +17,19 @@ public final class ConfigManager {
     private final MessageConfig messageConfig;
 
     public ConfigManager(@NotNull ItemManager plugin) {
-        Logger.debug(this, "Initializing...");
+        Logger.getInstance().debug(this, "Initializing...");
 
         this.generalConfig = parseGeneralConfig(getGeneralFileConfig(plugin));
         this.messageConfig = parseMessageConfig(getMessageFileConfig(plugin));
 
-        Logger.debug(this, "Initialized successfully.");
+        Logger.getInstance().debug(this, "Initialized successfully.");
     }
 
     private FileConfiguration getGeneralFileConfig(ItemManager plugin) {
         final File configFile = new File(plugin.getDataFolder(), GENERAL_CONFIG_FILE_NAME);
 
         if (!configFile.exists()) {
-            Logger.info(this, "'%s' does not exist. A default one will be created.".formatted(GENERAL_CONFIG_FILE_NAME));
+            Logger.getInstance().info(this, "'%s' does not exist. A default one will be created.".formatted(GENERAL_CONFIG_FILE_NAME));
             plugin.saveResource(GENERAL_CONFIG_FILE_NAME, false);
         }
 
@@ -42,7 +40,7 @@ public final class ConfigManager {
         final File configFile = new File(plugin.getDataFolder(), MESSAGE_CONFIG_FILE_NAME);
 
         if (!configFile.exists()) {
-            Logger.info(this, "'%s' does not exist. A default one will be created.".formatted(MESSAGE_CONFIG_FILE_NAME));
+            Logger.getInstance().info(this, "'%s' does not exist. A default one will be created.".formatted(MESSAGE_CONFIG_FILE_NAME));
             plugin.saveResource(MESSAGE_CONFIG_FILE_NAME, false);
         }
 
@@ -50,21 +48,20 @@ public final class ConfigManager {
     }
 
     private GeneralConfig parseGeneralConfig(FileConfiguration config) {
-        String levelName = config.getString("logging-level");
+        final String levelName = config.getString("logging-level");
 
         if (levelName == null) {
-            Logger.warn(this, "Failed to parse logging level in '%s': Level not found.".formatted(GENERAL_CONFIG_FILE_NAME));
-            return new GeneralConfig(Level.INFO);
+            Logger.getInstance().warn(this, "Failed to parse logging level in '%s': Level not found.".formatted(GENERAL_CONFIG_FILE_NAME));
+            return new GeneralConfig(Logger.LogLevel.INFO);
         }
 
-        levelName = levelName.strip().toUpperCase(Locale.ROOT);
-
-        try {
-            return new GeneralConfig(levelName.equals("DEBUG") ? Level.FINE : Level.parse(levelName));
-        } catch (IllegalArgumentException e) {
-            Logger.warn(this, "Failed to parse logging level: Invalid level '%s'.".formatted(levelName));
-            return new GeneralConfig(Level.INFO);
+        final Logger.LogLevel level = Logger.LogLevel.getLogLevel(levelName);
+        if (level == null) {
+            Logger.getInstance().warn(this, "Failed to parse logging level: Invalid level '%s'.".formatted(levelName));
+            return new GeneralConfig(Logger.LogLevel.INFO);
         }
+
+        return new GeneralConfig(level);
     }
 
     private MessageConfig parseMessageConfig(FileConfiguration config) {
@@ -92,7 +89,7 @@ public final class ConfigManager {
         final String value = config.getString(key);
 
         if (value == null) {
-            Logger.warn(this, "Failed to parse '%s' in '%s': Message not found. Using default.".formatted(key, MESSAGE_CONFIG_FILE_NAME));
+            Logger.getInstance().warn(this, "Failed to parse '%s' in '%s': Message not found. Using default.".formatted(key, MESSAGE_CONFIG_FILE_NAME));
             return MessageConfig.DEFAULT_MESSAGES.get(key);
         }
 

@@ -1,71 +1,119 @@
 package ru.vladimir.itemmanager.utils;
 
-import java.util.logging.Handler;
-import java.util.logging.Level;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
 
 public final class Logger {
 
-    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger("ItemManager");
-    private static Level minLevel = Level.ALL;
+    private static Logger instance;
+    private ComponentLogger logger;
+    private LogLevel minLevel;
 
-    static {
-        LOGGER.setLevel(Level.ALL);
-        final Handler[] handlers = LOGGER.getHandlers();
-        if (handlers != null) {
-            for (final Handler handler : handlers) {
-                handler.setLevel(Level.ALL);
+    public enum LogLevel {
+        DEBUG(0),
+        INFO(1),
+        WARNING(2),
+        ERROR(3);
+
+        private final int intValue;
+
+        LogLevel(int intValue) {
+            this.intValue = intValue;
+        }
+
+        public static LogLevel getLogLevel(String name) {
+            try {
+                return LogLevel.valueOf(name.strip().toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException e) {
+                return null;
             }
         }
     }
 
     private Logger() {}
 
-    public static void setLevel(Level l) {
-        minLevel = l;
+    public static Logger getInstance() {
+        if (instance == null)
+            throw new IllegalStateException("Accessed before it was initialized.");
+        return instance;
+    }
 
-        LOGGER.setLevel(l);
-
-        final Handler[] handlers = LOGGER.getHandlers();
-        if (handlers == null) return;
-
-        for (final Handler handler : handlers) {
-            handler.setLevel(Level.ALL);
+    public static void init(@NotNull ComponentLogger logger) {
+        if (instance != null) {
+            instance.warn(instance, "Already initialized.");
+            return;
         }
+
+        instance = new Logger();
+
+        instance.logger = logger;
+        instance.minLevel = LogLevel.INFO;
+    }
+
+    public static void destroy() {
+        if (instance != null) {
+            instance.warn(instance, "Not initialized.");
+            return;
+        }
+
+        instance = null;
+    }
+
+    public void setLevel(@NotNull LogLevel l) {
+        minLevel = l;
     }
     
-    public static void debug(Object origin, String message) {
-        log(Level.FINE, origin, message, null);
+    public void debug(Object origin, @NotNull String message) {
+        log(LogLevel.DEBUG, origin, message, null);
     }
 
-    public static void info(Object origin, String message) {
-        log(Level.INFO, origin, message, null);
+    public void info(Object origin, @NotNull String message) {
+        log(LogLevel.INFO, origin, message, null);
     }
     
-    public static void warn(Object origin, String message) {
-        log(Level.WARNING, origin, message, null);
+    public void warn(Object origin, @NotNull String message) {
+        log(LogLevel.WARNING, origin, message, null);
     }
 
-    public static void warn(Object origin, String message, Throwable t) {
-        log(Level.WARNING, origin, message, t);
+    public void warn(Object origin, @NotNull String message, @NotNull Throwable t) {
+        log(LogLevel.WARNING, origin, message, t);
     }
 
-    public static void error(Object origin, String message) {
-        log(Level.SEVERE, origin, message, null);
+    public void error(Object origin, @NotNull String message) {
+        log(LogLevel.ERROR, origin, message, null);
     }
 
-    public static void error(Object origin, String message, Throwable t) {
-        log(Level.SEVERE, origin, message, t);
+    public void error(Object origin, @NotNull String message, @NotNull Throwable t) {
+        log(LogLevel.ERROR, origin, message, t);
     }
 
-    private static void log(Level l, Object o, String m, Throwable t) {
-        if (l.intValue() < minLevel.intValue()) return;
+    private void log(LogLevel l, Object o, String m, Throwable t) {
+        if (l.intValue < minLevel.intValue) return;
 
         final String oN = getOriginName(o);
 
-        if (t == null)
-            LOGGER.log(l, "(%s) %s".formatted(oN, m));
-        else
-            LOGGER.log(l, "(%s) %s".formatted(oN, m), t);
+        final Component cM = Component.text("(%s) %s".formatted(oN, m));
+
+        switch (l) {
+            case DEBUG, INFO -> logger.info(cM);
+
+            case WARNING -> {
+                if (t == null)
+                    logger.warn(cM);
+                else
+                    logger.warn(cM, t);
+            }
+
+            case ERROR -> {
+                if (t == null)
+                    logger.error(cM);
+                else
+                    logger.error(cM, t);
+            }
+        }
     }
 
     private static String getOriginName(Object o) {

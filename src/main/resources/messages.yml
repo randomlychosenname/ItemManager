@@ -23,6 +23,6 @@ item-unregistered: "<green>Item {ITEM} unregistered.</green>"   # Placeholders: 
 item-given: "<green>Gave {AMOUNT}x {ITEM} to {PLAYER}.</green>" # Placeholders: {AMOUNT}, {ITEM}, {PLAYER}
 
 plugin-description: "A <gold>powerful</gold> item management plugin."
-plugin-help: "<red>To do... (if you see it, I forgot to write it... lol)</red>"
+plugin-help: "List of commands: <gold>\n/itemmanager add <key>: Adds a new item held in your hand with key serving as identifier\n/itemmanager remove <key>: Removes the specified item\n/itemmanager give <player> <key> [amount]: Gives item to player in the specified amount\n/itemmanager list: Lists all currently registered items\n/itemmanager reload: Reloads the plugin\n/itemmanager help: Reveals this message"
 item-list: "Registered items: <gold>{ITEMS}</gold>" # Placeholders: {ITEMS}
 plugin-reloaded: "<green>Plugin reloaded.</green>"

@@ -43,7 +43,7 @@ public final class CustomItemStorage {
     private final AtomicBoolean invalidateBuilderCache;
 
     public CustomItemStorage(@NotNull ItemManager plugin) {
-        Logger.debug(this, "Initializing...");
+        Logger.getInstance().debug(this, "Initializing...");
 
         this.plugin = plugin;
         this.configFile = new File(plugin.getDataFolder(), FILE_STORAGE_NAME);
@@ -54,7 +54,7 @@ public final class CustomItemStorage {
 
         refreshItemRegistry(getItemConfig(configFile));
 
-        Logger.debug(this, "Initialized successfully.");
+        Logger.getInstance().debug(this, "Initialized successfully.");
     }
 
     private void refreshItemRegistry(FileConfiguration itemConfig) {
@@ -65,13 +65,13 @@ public final class CustomItemStorage {
             
             final ConfigurationSection section = itemConfig.getConfigurationSection(itemId);
             if (section == null) {
-                Logger.warn(this, "Item '%s' is not a configuration section.".formatted(itemId));
+                Logger.getInstance().warn(this, "Item '%s' is not a configuration section.".formatted(itemId));
                 continue;
             }
 
             final byte[] parsedItemData = deserializeItemEntryIntoBytes(itemId, section);
             if (parsedItemData == null) {
-                Logger.warn(this, "Failed to parse '%s'.".formatted(itemId));
+                Logger.getInstance().warn(this, "Failed to parse '%s'.".formatted(itemId));
                 continue;
             }
 
@@ -91,7 +91,7 @@ public final class CustomItemStorage {
 
         final Set<String> sectionToCopyFromKeys = sectionToCopyFrom.getKeys(true);
         if (sectionToCopyFromKeys.isEmpty()) {
-            Logger.warn(this, "Failed to serialize '%s' into section.".formatted(itemId));
+            Logger.getInstance().warn(this, "Failed to serialize '%s' into section.".formatted(itemId));
             return false;
         }
 
@@ -135,13 +135,13 @@ public final class CustomItemStorage {
         try {
             config.save(configFile);
         } catch (IOException e) {
-            Logger.error(this, "Failed to save file configuration to '%s'.".formatted(FILE_STORAGE_NAME), e);
+            Logger.getInstance().error(this, "Failed to save file configuration to '%s'.".formatted(FILE_STORAGE_NAME), e);
         }
     }
 
     private void ensureConfigFileExists() {
         if (!configFile.exists()) {
-            Logger.info(this, "'%s' does not exist. A default one will be created.".formatted(FILE_STORAGE_NAME));
+            Logger.getInstance().info(this, "'%s' does not exist. A default one will be created.".formatted(FILE_STORAGE_NAME));
             plugin.saveResource(FILE_STORAGE_NAME, false);
         }
     }
@@ -173,7 +173,6 @@ public final class CustomItemStorage {
     }
 
     // HIDDEN RELATIONSHIP -- START
-
     void registryRefreshed() {
         invalidateBuilderCache.set(true);
     }
@@ -181,13 +180,12 @@ public final class CustomItemStorage {
     boolean consumeCacheInvalidationSignal() {
         return invalidateBuilderCache.getAndSet(false);
     }
-
     // HIDDEN RELATIONSHIP -- END
 
     private byte[] deserializeItemEntryIntoBytes(String itemId, ConfigurationSection itemEntry) {
         final String materialName = itemEntry.getString("material");
         if (materialName == null) {
-            Logger.warn(this, "Failed to parse '%s': No material name.".formatted(itemId));
+            Logger.getInstance().warn(this, "Failed to parse '%s': No material name.".formatted(itemId));
             return null;
         }
 
@@ -196,13 +194,13 @@ public final class CustomItemStorage {
         try {
             material = Material.valueOf(materialName.strip().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
-            Logger.warn(this, "Failed to parse '%s': Bad material name '%s'.".formatted(itemId, materialName));
+            Logger.getInstance().warn(this, "Failed to parse '%s': Bad material name '%s'.".formatted(itemId, materialName));
             return null;
         }
 
         final String rawDisplayName = itemEntry.getString("name");
         if (rawDisplayName == null) {
-            Logger.warn(this, "Failed to parse '%s': No item name.".formatted(itemId));
+            Logger.getInstance().warn(this, "Failed to parse '%s': No item name.".formatted(itemId));
             return null;
         }
 
@@ -210,7 +208,7 @@ public final class CustomItemStorage {
 
         final List<?> rawLore = itemEntry.getList("lore");
         if (rawLore == null) {
-            Logger.warn(this, "Failed to parse '%s': No lore.".formatted(itemId));
+            Logger.getInstance().warn(this, "Failed to parse '%s': No lore.".formatted(itemId));
             return null;
         }
 
@@ -218,7 +216,7 @@ public final class CustomItemStorage {
 
         for (final Object rawSupposedLine : rawLore) {
             if (!(rawSupposedLine instanceof final String rawLine)) {
-                Logger.warn(this, "Failed to parse line of lore of '%s': Not a string '%s'.".formatted(itemId, rawSupposedLine));
+                Logger.getInstance().warn(this, "Failed to parse line of lore of '%s': Not a string '%s'.".formatted(itemId, rawSupposedLine));
                 continue;
             }
             lore.add(MINI_MESSAGE_PARSER.deserialize(rawLine));
@@ -226,7 +224,7 @@ public final class CustomItemStorage {
 
         final List<?> rawEnchantments = itemEntry.getList("enchantments");
         if (rawEnchantments == null) {
-            Logger.warn(this, "Failed to parse '%s': Enchantments not found.".formatted(itemId));
+            Logger.getInstance().warn(this, "Failed to parse '%s': Enchantments not found.".formatted(itemId));
             return null;
         }
 
@@ -235,19 +233,19 @@ public final class CustomItemStorage {
     
         for (final Object rawEnchantment : rawEnchantments) {
             if (!(rawEnchantment instanceof final Map<?, ?> entry)) {
-                Logger.warn(this, "Failed to parse enchantment of '%s': '%s' is not entry.".formatted(itemId, rawEnchantment));
+                Logger.getInstance().warn(this, "Failed to parse enchantment of '%s': '%s' is not entry.".formatted(itemId, rawEnchantment));
                 continue;
             }
 
             if (!entry.containsKey("name") || !entry.containsKey("level")) {
-                Logger.warn(this, "Failed to parse enchantment of '%s': '%s' is not valid entry.".formatted(itemId, entry));
+                Logger.getInstance().warn(this, "Failed to parse enchantment of '%s': '%s' is not valid entry.".formatted(itemId, entry));
                 continue;
             }
 
             final String key = String.valueOf(entry.get("name")).strip().toLowerCase(Locale.ROOT);
 
             if (addedEnchantments.contains(key)) {
-                Logger.warn(this, "Failed to parse enchantment '%s' of '%s': A duplicate.".formatted(key, itemId));
+                Logger.getInstance().warn(this, "Failed to parse enchantment '%s' of '%s': A duplicate.".formatted(key, itemId));
                 continue;
             }
 
@@ -257,12 +255,12 @@ public final class CustomItemStorage {
             try {
                 level = Integer.parseInt(String.valueOf(supposedLevel));
             } catch (NumberFormatException e) {
-                Logger.warn(this, "Failed to parse enchantment '%s' of '%s': Invalid level '%s'.".formatted(key, itemId, supposedLevel));
+                Logger.getInstance().warn(this, "Failed to parse enchantment '%s' of '%s': Invalid level '%s'.".formatted(key, itemId, supposedLevel));
                 continue;
             }
 
             if (level < 0 || level > 255) {
-                Logger.warn(this, "Enchantment '%s' of '%s' has a level exceeding the capacity 0-255 (%d).".formatted(key, itemId, level));
+                Logger.getInstance().warn(this, "Enchantment '%s' of '%s' has a level exceeding the capacity 0-255 (%d).".formatted(key, itemId, level));
             }
 
             enchantments.add(new EnchantmentEntry(key, level));
@@ -271,7 +269,7 @@ public final class CustomItemStorage {
 
         final List<?> rawAttributes = itemEntry.getList("attributes");
         if (rawAttributes == null) {
-            Logger.warn(this, "Failed to parse '%s': Attributes not found.".formatted(itemId));
+            Logger.getInstance().warn(this, "Failed to parse '%s': Attributes not found.".formatted(itemId));
             return null;
         }
 
@@ -280,25 +278,25 @@ public final class CustomItemStorage {
 
         for (final Object rawAttribute : rawAttributes) {
             if (!(rawAttribute instanceof final Map<?, ?> entry)) {
-                Logger.warn(this, "Failed to parse attribute of '%s': '%s' is not entry.".formatted(itemId, rawAttribute));
+                Logger.getInstance().warn(this, "Failed to parse attribute of '%s': '%s' is not entry.".formatted(itemId, rawAttribute));
                 continue;
             }
 
             if (!entry.containsKey("name") || !entry.containsKey("modifiers")) {
-                Logger.warn(this, "Failed to parse attribute of '%s': '%s' is not valid entry.".formatted(itemId, entry));
+                Logger.getInstance().warn(this, "Failed to parse attribute of '%s': '%s' is not valid entry.".formatted(itemId, entry));
                 continue;
             }
 
             final String key = String.valueOf(entry.get("name")).strip().toLowerCase(Locale.ROOT);
             
             if (addedAttributes.contains(key)) {
-                Logger.warn(this, "Failed to parse attribute '%s' of '%s': A duplicate.".formatted(key, itemId));
+                Logger.getInstance().warn(this, "Failed to parse attribute '%s' of '%s': A duplicate.".formatted(key, itemId));
                 continue;
             }
 
             final Object supposedRawModifiers = entry.get("modifiers");
             if (!(supposedRawModifiers instanceof final List<?> rawModifiers)) {
-                Logger.warn(this, "Failed to parse attribute '%s' of '%s': '%s' is not a valid list of modifiers.".formatted(key, itemId, supposedRawModifiers));
+                Logger.getInstance().warn(this, "Failed to parse attribute '%s' of '%s': '%s' is not a valid list of modifiers.".formatted(key, itemId, supposedRawModifiers));
                 continue;
             }
 
@@ -306,12 +304,12 @@ public final class CustomItemStorage {
 
             for (final Object rawModifier : rawModifiers) {
                 if (!(rawModifier instanceof final Map<?, ?> modifierEntry)) {
-                    Logger.warn(this, "Failed to parse attribute modifier of '%s' of '%s': '%s' is not entry.".formatted(key, itemId, rawModifier));
+                    Logger.getInstance().warn(this, "Failed to parse attribute modifier of '%s' of '%s': '%s' is not entry.".formatted(key, itemId, rawModifier));
                     continue;
                 }
 
                 if (!modifierEntry.containsKey("operation") || !modifierEntry.containsKey("amount")) {
-                    Logger.warn(this, "Failed to parse attribute modifier of '%s' of '%s': '%s' is not valid entry.".formatted(key, itemId, modifierEntry));
+                    Logger.getInstance().warn(this, "Failed to parse attribute modifier of '%s' of '%s': '%s' is not valid entry.".formatted(key, itemId, modifierEntry));
                     continue;
                 }
 
@@ -321,12 +319,12 @@ public final class CustomItemStorage {
                 try {
                     amount = Double.parseDouble(String.valueOf(supposedAmount));
                 } catch (NumberFormatException e) {
-                    Logger.warn(this, "Failed to parse attribute modifier of '%s' of '%s': '%s' is not valid amount.".formatted(key, itemId, supposedAmount));
+                    Logger.getInstance().warn(this, "Failed to parse attribute modifier of '%s' of '%s': '%s' is not valid amount.".formatted(key, itemId, supposedAmount));
                     continue;
                 }
 
                 final Object supposedSlotGroupName = modifierEntry.get("slot");
-                final String slotGroupName = supposedSlotGroupName == null ? null : String.valueOf(supposedSlotGroupName);
+                final String slotGroupName = supposedSlotGroupName == null ? "any" : String.valueOf(supposedSlotGroupName);
 
                 modifiers.add(new AttributeModifierEntry(
                     slotGroupName, 
@@ -341,7 +339,7 @@ public final class CustomItemStorage {
 
         final List<?> rawKeys = itemEntry.getList("keys");
         if (rawKeys == null) {
-            Logger.warn(this, "Failed to parse '%s': Keys not found.".formatted(itemId));
+            Logger.getInstance().warn(this, "Failed to parse '%s': Keys not found.".formatted(itemId));
             return null;
         }
 
@@ -350,27 +348,27 @@ public final class CustomItemStorage {
 
         for (final Object supposedRawKey : rawKeys) {
             if (!(supposedRawKey instanceof String)) {
-                Logger.warn(this, "Failed to parse key of '%s': '%s' is not key.".formatted(itemId, supposedRawKey));
+                Logger.getInstance().warn(this, "Failed to parse key of '%s': '%s' is not key.".formatted(itemId, supposedRawKey));
                 continue;
             }
 
             final String rawKey = String.valueOf(supposedRawKey).strip().toLowerCase(Locale.ROOT);
 
             if (addedKeys.contains(rawKey)) {
-                Logger.warn(this, "Failed to parse key '%s' of '%s': A duplicate.".formatted(rawKey, itemId));
+                Logger.getInstance().warn(this, "Failed to parse key '%s' of '%s': A duplicate.".formatted(rawKey, itemId));
                 continue;
             }
 
             final String[] splitKey = rawKey.split(":");
 
             if (splitKey.length == 1 && splitKey[0].isEmpty()) {
-                Logger.warn(this, "Failed to parse key '%s' of '%s': Invalid format.".formatted(rawKey, itemId));
+                Logger.getInstance().warn(this, "Failed to parse key '%s' of '%s': Invalid format.".formatted(rawKey, itemId));
                 continue;
             } else if (splitKey.length == 2 && (splitKey[0].isEmpty() || splitKey[1].isEmpty())) {
-                Logger.warn(this, "Failed to parse key '%s' of '%s': Invalid format.".formatted(rawKey, itemId));
+                Logger.getInstance().warn(this, "Failed to parse key '%s' of '%s': Invalid format.".formatted(rawKey, itemId));
                 continue;
             } else if (splitKey.length > 2) {
-                Logger.warn(this, "Failed to parse key '%s' of '%s': Invalid format.".formatted(rawKey, itemId));
+                Logger.getInstance().warn(this, "Failed to parse key '%s' of '%s': Invalid format.".formatted(rawKey, itemId));
                 continue;
             }
 
@@ -387,7 +385,7 @@ public final class CustomItemStorage {
         final ItemMeta meta = Bukkit.getItemFactory().getItemMeta(material);
 
         if (meta == null) {
-            Logger.warn(this, "Material '%s' of '%s' does not support item meta; configured display name, lore, enchantments, attributes, and keys were ignored for it.".formatted(materialName, itemId));
+            Logger.getInstance().warn(this, "Material '%s' of '%s' does not support item meta; configured display name, lore, enchantments, attributes, and keys were ignored for it.".formatted(materialName, itemId));
             return item.serializeAsBytes();
         }
 
@@ -401,7 +399,7 @@ public final class CustomItemStorage {
                 .get(new NamespacedKey("minecraft", entry.key()));
 
             if (enchantment == null) {
-                Logger.warn(this, "Failed to parse enchantment '%s' of '%s': Invalid enchantment.".formatted(entry.key(), itemId));
+                Logger.getInstance().warn(this, "Failed to parse enchantment '%s' of '%s': Invalid enchantment.".formatted(entry.key(), itemId));
                 continue;
             }
 
@@ -416,7 +414,7 @@ public final class CustomItemStorage {
                 .get(new NamespacedKey("minecraft", key));
 
             if (attribute == null) {
-                Logger.warn(this, "Failed to parse attribute '%s' of '%s': Invalid attribute.".formatted(key, itemId));
+                Logger.getInstance().warn(this, "Failed to parse attribute '%s' of '%s': Invalid attribute.".formatted(key, itemId));
                 continue;
             }
 
@@ -428,7 +426,7 @@ public final class CustomItemStorage {
                 try {
                     modifierOperation = Operation.valueOf(modifierOperationName);
                 } catch (IllegalArgumentException e) {
-                    Logger.warn(this, "Failed to parse modifier of attribute '%s' of '%s': '%s' is not valid operation.".formatted(key, itemId, modifierOperationName));
+                    Logger.getInstance().warn(this, "Failed to parse modifier of attribute '%s' of '%s': '%s' is not valid operation.".formatted(key, itemId, modifierOperationName));
                     continue;
                 }
 
@@ -464,7 +462,7 @@ public final class CustomItemStorage {
         if (isDefaultDisplayName(displayName)) {
             final char capitalLetter = materialName.charAt(0);
             final String materialNameRest = materialName.substring(1).toLowerCase(Locale.ROOT);
-            rawDisplayName = (item.getEnchantments().isEmpty() ? "<italic:false>" : "") + (capitalLetter + materialNameRest).replace("_", " ");
+            rawDisplayName = "<italic:false>" + (capitalLetter + materialNameRest).replace("_", " ");
         } else {
             rawDisplayName = MINI_MESSAGE_PARSER.serialize(displayName);
         }
@@ -474,11 +472,11 @@ public final class CustomItemStorage {
 
         if (lore != null) {
             for (final Component line : lore) {
-                Logger.info(this, "Serializing this line of lore: %s".formatted(line));
+                Logger.getInstance().info(this, "Serializing this line of lore: %s".formatted(line));
 
                 rawLore.add(MINI_MESSAGE_PARSER.serialize(line));
 
-                Logger.info(this, "Serialized it into this: %s".formatted(MINI_MESSAGE_PARSER.serialize(line)));
+                Logger.getInstance().info(this, "Serialized it into this: %s".formatted(MINI_MESSAGE_PARSER.serialize(line)));
             }
         }
 

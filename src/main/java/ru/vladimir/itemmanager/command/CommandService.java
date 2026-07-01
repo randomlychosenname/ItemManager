@@ -22,13 +22,13 @@ public final class CommandService {
     private final Map<String, SubCommandWrapper> subCommandRegistry;
 
     public CommandService(@NotNull MessageConfig messages) {
-        Logger.debug(this, "Initializing...");
+        Logger.getInstance().debug(this, "Initializing...");
 
         this.subCommandRegistry = new ConcurrentHashMap<>();
 
         registerSubCommands(messages);
 
-        Logger.debug(this, "Initialized successfully.");
+        Logger.getInstance().debug(this, "Initialized successfully.");
     }
 
     private void registerSubCommands(MessageConfig messages) {
@@ -54,7 +54,7 @@ public final class CommandService {
     private void registerSubCommand(Set<String> aliases, SubCommandWrapper wrapper) {
         for (final String alias : aliases) {
             if (subCommandRegistry.containsKey(alias)) {
-                Logger.warn(this, "Failed to add alias '%s': Already registered.".formatted(alias));
+                Logger.getInstance().warn(this, "Failed to add alias '%s': Already registered.".formatted(alias));
                 continue;
             }
 

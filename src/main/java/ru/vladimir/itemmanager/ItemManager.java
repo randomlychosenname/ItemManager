@@ -21,11 +21,13 @@ public final class ItemManager extends JavaPlugin {
     
     @Override
     public void onEnable() {
-        Logger.info(this, "Loading up...");
+        Logger.init(this.getComponentLogger());
+
+        Logger.getInstance().info(this, "Loading up...");
 
         final ConfigManager configManager = new ConfigManager(this);
 
-        Logger.setLevel(configManager.getGeneralConfig().loggingLevel());
+        Logger.getInstance().setLevel(configManager.getGeneralConfig().loggingLevel());
 
         final CustomItemStorage itemStorage = new CustomItemStorage(this);
         final CustomItemBuilder itemBuilder = new CustomItemBuilder(itemStorage);
@@ -42,12 +44,12 @@ public final class ItemManager extends JavaPlugin {
         command.setTabCompleter(commandHandler);
 
         if (UpdateChecker.isUpToDate(this.getPluginMeta().getVersion())) {
-            Logger.warn(this, "A new version is available. Download it from here: %s".formatted(PLUGIN_DOWNLOAD_LINK));
+            Logger.getInstance().warn(this, "A new version is available. Download it from here: %s".formatted(PLUGIN_DOWNLOAD_LINK));
         } else {
-            Logger.info(this, "You're up to date!");
+            Logger.getInstance().info(this, "You're up to date!");
         }
 
-        Logger.info(this, "Loaded successfully.");
+        Logger.getInstance().info(this, "Loaded successfully.");
     }
 
     public void onReload() {
@@ -57,16 +59,18 @@ public final class ItemManager extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        Logger.info(this, "Shutting down...");
+        Logger.getInstance().info(this, "Shutting down...");
 
         api = null;
 
-        Logger.info(this, "Shut down successfully.");
+        Logger.getInstance().info(this, "Shut down successfully.");
+
+        Logger.destroy();
     }
 
     public static @NotNull ItemManagerApi getApi() {
         if (api == null) 
-            throw new IllegalStateException("Attempted to get API before it was initialized.");
+            throw new IllegalStateException("Accessed API before it was initialized.");
         return api;
     }
 }
