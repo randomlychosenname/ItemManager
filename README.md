@@ -1,40 +1,23 @@
 # ItemManager
 
-A powerful and centralized custom item management plugin for Minecraft servers running Paper/Spigot 1.21+.
+A powerful and centralized custom item management plugin.
 
-ItemManager makes it easy to define, register, and distribute custom items while keeping their configuration in one place. Instead of every plugin implementing its own custom item system, ItemManager provides a shared registry that can also be used by your own plugins through custom item keys.
+ItemManager makes it easy to add, remove, and manage custom items while keeping their configuration in one place. Instead of every plugin implementing its own custom item system, it provides you a shared registry that can also be used by your own plugins through custom item keys.
 
 ## Features
 
-* Register custom items through configuration.
-* Customize:
-
-    * Material
-    * Display name
-    * Lore
-    * Enchantments
-    * Item attributes
-    * Custom item keys
-* Give registered items through commands.
-* Reload item definitions without restarting the server.
-* List all registered items.
-* Centralized item registry for easier maintenance.
-* Designed to integrate with your own plugins using persistent custom keys.
+* **Store** items using a **simple command** or by **manually adding it** to the **config**;
+* **Modify** the **items' properties** directly in the **config**, and see **live updates** after **refreshing the plugin**;
+* **Give** custom items to **others** in **any amount** with an **absolute ease**;
+* **Use** defined by you keys to let **other plugins** interact with it, especially for **custom plugins**.
 
 ## Why ItemManager?
 
-Many plugins implement their own custom items independently, making maintenance and interoperability difficult.
+**ItemManager** promises your custom items a proper home. 
 
-ItemManager solves this by acting as a central registry for all custom items on your server. Your plugins can simply reference an item's unique key instead of recreating its metadata, allowing multiple plugins to recognize and work with the same item.
+Register an item **once**, then reference it **anywhere** by its **unique key**, whether it's **your own plugin** or **someone else's**. *No metadata juggling, no hacky storage*. ***Nice and neat!***
 
-For example:
-
-* A quest plugin can require a specific custom item.
-* A crafting plugin can consume that same item.
-* A skills plugin can detect it and grant bonuses.
-* An events plugin can reward it.
-
-All without each plugin having to define the item separately.
+It's **blazingly fast**, and gives you **complete control** over how your items are **defined**, all through one **shared registry**. You don't have to go out of your way to handle a *bunch of items with all kinds of meta data*. Just let the plugin to **take care of it** and you will not want to **let go**!
 
 ## Commands
 
@@ -46,12 +29,6 @@ All without each plugin having to define the item separately.
 | `/itemmanager list`   | List all registered items.          |
 | `/itemmanager reload` | Reload the plugin configuration.    |
 | `/itemmanager help`   | Display command help.               |
-
-### Aliases
-
-* `/im`
-* `/imanager`
-* `/itemm`
 
 ## Permissions
 
@@ -66,25 +43,9 @@ All without each plugin having to define the item separately.
 | `itemmanager.command.reload` | Allows reloading the configuration.                     |
 | `itemmanager.command.help`   | Allows viewing help.                                    |
 
-By default, all permissions are granted to server operators.
+## Try it NOW!
 
-## Plugin Integration
-
-ItemManager is intended to serve as a shared item registry.
-
-Each registered item may contain one or more custom keys that other plugins can use to identify it. This allows your own plugins to integrate seamlessly without depending on item names, lore, or enchantments, which may change over time.
-
-Instead, plugins can simply check for a specific key and respond accordingly.
-
-## Compatibility
-
-* Minecraft 1.21+
-* Paper
-* Spigot (where supported)
-
-## Installing
-
-1. Go to the latest release.
-2. Click to download the JAR.
-3. Place it in your server's folder.
-4. Done! When a new update appears, a notification will be shown.
+The download process could never be easier!
+1. **Download the latest release.** 
+2. **Place it in your server's plugins folder.** 
+3. **Enjoy your new opportunities!** 
