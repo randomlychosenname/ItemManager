@@ -189,11 +189,8 @@ public final class CustomItemStorage {
             return null;
         }
 
-        final Material material;
-
-        try {
-            material = Material.valueOf(materialName.strip().toUpperCase(Locale.ROOT));
-        } catch (IllegalArgumentException e) {
+        final Material material = Material.matchMaterial(materialName.strip().toUpperCase(Locale.ROOT));
+        if (material == null) {
             Logger.getInstance().warn(this, "Failed to parse '%s': Bad material name '%s'.".formatted(itemId, materialName));
             return null;
         }

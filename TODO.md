@@ -11,11 +11,11 @@ These tasks currently in progress.
 Something that will or will not be done in the long future.
 
 - [ ] Enable custom enchant namespaced keys
+- [ ] Enable model IDs for resource packs
+- [ ] Allow storage of NBT data too, such as the content of a book
+- [ ] Improve display name parsing
+- [ ] Make it not to spawn {} when there are no entries left after removal
 
 # DONE
 
-- [x] Invalidate cache after each registry refresh
-- [x] Fix component parsing for items
-- [x] Logger to log levels based on the set level
-- [x] Finish guides
-- [x] Implement update checker
+- [x] Use Material.matchMaterial for a safer item material parsing
