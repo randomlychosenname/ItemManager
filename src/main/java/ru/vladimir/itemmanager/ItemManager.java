@@ -16,7 +16,7 @@ import ru.vladimir.itemmanager.utils.UpdateChecker;
 public final class ItemManager extends JavaPlugin {
 
     private static final String MAIN_COMMAND_NAME = "itemmanager";
-    private static final String PLUGIN_DOWNLOAD_LINK = "https://github.com/randomlychosenname/ItemManager/releases/latest";
+    private static final String PLUGIN_DOWNLOAD_LINK = "https://hangar.papermc.io/randomlychosenname/ItemManager/versions";
     private static ItemManagerApi api;
     
     @Override
