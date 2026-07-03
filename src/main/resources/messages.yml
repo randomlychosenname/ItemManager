@@ -4,7 +4,7 @@
 
 #
 # Learn more about formatting using MiniMessage: https://docs.papermc.io/adventure/minimessage/format/
-# Don't know the supported placeholders? Check here: https://github.com/randomlychosenname/ItemManager/tree/main/guides/PLACEHOLDERS.md
+# Don't know the supported placeholders? Check here: https://github.com/randomlychosenname/ItemManager/blob/main/guides/PLACEHOLDERS.md
 #
 
 no-permission: "<red>You do not have permission to run this command!</red>"

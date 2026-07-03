@@ -2,11 +2,57 @@
 # = ItemManager | Items = #
 # ======================= #
 
-#
 # Learn more about:
-# - Material names: https://jd.papermc.io/paper/1.21.1/org/bukkit/Material.html
-# - Enchantment keys: https://jd.papermc.io/paper/26.2/io/papermc/paper/registry/keys/EnchantmentKeys.html
-# - Attribute keys: https://jd.papermc.io/paper/26.2/io/papermc/paper/registry/keys/AttributeKeys.html
-# - Attribute Modifiers: https://jd.papermc.io/paper/26.2/org/bukkit/attribute/AttributeModifier.html
+# - How to configure a custom item manually:
+#   https://github.com/randomlychosenname/ItemManager/blob/main/guides/ITEMS.md
 #
+# Use the Paper Javadocs matching your Minecraft/Paper version.
+# Replace {VERSION} with your server version (e.g. 1.21, 26.2, etc.).
+#
+# - Material names:
+#   https://jd.papermc.io/paper/{VERSION}/org/bukkit/Material.html
+# - Enchantment keys:
+#   https://jd.papermc.io/paper/{VERSION}/io/papermc/paper/registry/keys/EnchantmentKeys.html
+# - Attribute keys:
+#   https://jd.papermc.io/paper/{VERSION}/io/papermc/paper/registry/keys/AttributeKeys.html
+# - Attribute modifier operations:
+#   https://jd.papermc.io/paper/{VERSION}/org/bukkit/attribute/AttributeModifier.Operation.html
+# - Equipment slots:
+#   https://jd.papermc.io/paper/{VERSION}/org/bukkit/inventory/EquipmentSlotGroup.html
+
+# A Basic Example
+# example_item:
+#   material: DIRT
+#   name: <brown>Mythic Dirt</brown>
+#   lore: [ "A crazy story behind it..." ]
+#   enchantments: []
+#   attributes: []
+#   keys: []
+
+# An Advanced Example
+# example_item:
+#   material: COPPER_SWORD
+#   name: <#F55E27><bold>Copper sword</bold></#F55E27>
+#   lore:
+#     - <gray>Forged by dwarves.
+#     - <yellow>Handle with care.
+#   enchantments:
+#     - name: sharpness
+#       level: 10
+#     - name: unbreaking
+#       level: 3
+#   attributes:
+#     - name: attack_speed
+#       modifiers:
+#         - operation: ADD_NUMBER
+#           amount: 5
+#           slot: mainhand
+#     - name: attack_damage
+#       modifiers:
+#         - operation: ADD_SCALAR
+#           amount: 0.5
+#           slot: mainhand
+#   keys:
+#     - plugin:key
+#     - key
 
