@@ -23,7 +23,7 @@
 # A Basic Example
 # example_item:
 #   material: DIRT
-#   name: <brown>Mythic Dirt</brown>
+#   display-name: <brown>Mythic Dirt</brown>
 #   lore: [ "A crazy story behind it..." ]
 #   enchantments: []
 #   attributes: []
@@ -32,7 +32,7 @@
 # An Advanced Example
 # example_item:
 #   material: COPPER_SWORD
-#   name: <#F55E27><bold>Copper sword</bold></#F55E27>
+#   display-name: <#F55E27><bold>Copper sword</bold></#F55E27>
 #   lore:
 #     - <gray>Forged by dwarves.
 #     - <yellow>Handle with care.

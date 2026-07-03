@@ -22,7 +22,7 @@ Replace ```{VERSION}``` with your server version (_e.g. 1.21, 26.2, etc._).
 ```yaml
 example_item:
   material: DIRT
-  name: <brown>Mythic Dirt</brown>
+  display-name: <brown>Mythic Dirt</brown>
   lore: [ "A crazy story behind it..." ]
   enchantments: []
   attributes: []
@@ -34,7 +34,7 @@ example_item:
 ```yaml
 example_item:
   material: COPPER_SWORD
-  name: <#F55E27><bold>Copper sword</bold></#F55E27>
+  display-name: <#F55E27><bold>Copper sword</bold></#F55E27>
   lore:
     - <gray>Forged by dwarves.
     - <yellow>Handle with care.
@@ -78,7 +78,7 @@ Use the material names from the Paper API documentation for your server version.
 The item's display name.
 
 ```yaml
-name: <#F55E27><bold>Copper sword</bold></#F55E27>
+display-name: <#F55E27><bold>Copper sword</bold></#F55E27>
 ```
 
 Supports MiniMessage formatting.
