@@ -33,6 +33,7 @@
 # example_item:
 #   material: COPPER_SWORD
 #   display-name: <#F55E27><bold>Copper sword</bold></#F55E27>
+#   model-id: 1001
 #   lore:
 #     - <gray>Forged by dwarves.
 #     - <yellow>Handle with care.

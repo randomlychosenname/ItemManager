@@ -3,7 +3,6 @@ package ru.vladimir.itemmanager.storage;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -17,7 +16,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.*;
 
 final class CustomItemSerializer {
-    private static final MiniMessage MINI_MESSAGE_PARSER = MiniMessage.miniMessage();
+    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
 
     private CustomItemSerializer() {}
 
@@ -27,6 +26,7 @@ final class CustomItemSerializer {
         section.set("material", entry.materialName());
         section.set("display-name", entry.displayName());
         section.set("lore", entry.lore());
+        section.set("model-id", entry.customModelDataId());
         section.set("enchantments", entry.enchantmentEntriesToMap());
         section.set("attributes", entry.attributeEntriesToMap());
         section.set("keys", List.copyOf(entry.keys()));
@@ -37,24 +37,26 @@ final class CustomItemSerializer {
         final String materialName = material.toString();
 
         final Component displayName = item.displayName();
-        final String rawDisplayName = serializeDisplayName(displayName, material, !item.getEnchantments().isEmpty());
+        final String rawDisplayName = serializeDisplayName(displayName, materialName, !item.getEnchantments().isEmpty());
 
         final List<Component> lore = Objects.requireNonNullElse(item.lore(), List.of());
         final List<String> rawLore = new ArrayList<>(lore.size());
 
         for (final Component line : lore) {
-            rawLore.add(MINI_MESSAGE_PARSER.serialize(line));
+            rawLore.add(MINI_MESSAGE.serialize(line));
         }
 
         final Map<Enchantment, Integer> enchantments = item.getEnchantments();
         final List<CustomItemEntry.EnchantmentEntry> rawEnchantments = new ArrayList<>(enchantments.size());
 
         for (final Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
-            rawEnchantments.add(new CustomItemEntry.EnchantmentEntry(entry.getKey().getKey().getKey(), entry.getValue()));
+            rawEnchantments.add(new CustomItemEntry.EnchantmentEntry(entry.getKey().getKey().toString(), entry.getValue()));
         }
 
         final ItemMeta meta = item.getItemMeta();
-        if (meta == null) return new CustomItemEntry(materialName, rawDisplayName, rawLore, rawEnchantments, List.of(), Set.of());
+        if (meta == null) return new CustomItemEntry(materialName, rawDisplayName, rawLore, -1, rawEnchantments, List.of(), Set.of());
+
+        final int customDataModelId = meta.hasCustomModelData() ? meta.getCustomModelData() : -1;
 
         final Multimap<Attribute, AttributeModifier> attributes = Objects.requireNonNullElse(meta.getAttributeModifiers(), ArrayListMultimap.create());
         final List<CustomItemEntry.AttributeEntry> rawAttributes = new ArrayList<>(attributes.keys().size());
@@ -72,7 +74,7 @@ final class CustomItemSerializer {
                 ));
             }
 
-            rawAttributes.add(new CustomItemEntry.AttributeEntry(entry.getKey().getKey().getKey(), rawAttributeModifiers));
+            rawAttributes.add(new CustomItemEntry.AttributeEntry(entry.getKey().getKey().toString(), rawAttributeModifiers));
         }
 
         final Set<NamespacedKey> keys = item.getPersistentDataContainer().getKeys();
@@ -86,54 +88,15 @@ final class CustomItemSerializer {
                 materialName,
                 rawDisplayName,
                 rawLore,
+                customDataModelId,
                 rawEnchantments,
                 rawAttributes,
                 rawKeys
         );
     }
 
-    private static String serializeDisplayName(Component displayName, Material material, boolean hasEnchantments) {
+    private static String serializeDisplayName(Component displayName, String materialName, boolean hasEnchantments) {
         displayName = displayName.clickEvent(null).hoverEvent(null).insertion(null);
-
-        return MINI_MESSAGE_PARSER.serialize(displayName);
-//
-//        if (isTextComponentEmpty(displayName)) {
-//            String materialName = material.toString().toLowerCase(Locale.ROOT).replace("_", " ");
-//
-//            final String[] splitMaterialName = materialName.split(" ");
-//            final StringBuilder finalName = new StringBuilder();
-//
-//            for (final String partMaterialName : splitMaterialName) {
-//                finalName.append(partMaterialName.toUpperCase(Locale.ROOT).charAt(0))
-//                         .append(partMaterialName.substring(1))
-//                         .append(' ');
-//            }
-//
-//            final String enchantmentColorPrefix = hasEnchantments ? "<aqua>" : "";
-//
-//            return "<!italic>" + enchantmentColorPrefix + finalName.toString().strip();
-//        }
-//
-//        Logger.getInstance().info(CustomItemSerializer.class, "%s is not treated as default.".formatted(MINI_MESSAGE_PARSER.serialize(displayName)));
-//
-//        if (!(displayName instanceof final TranslatableComponent tc)) {
-//            Logger.getInstance().warn(CustomItemSerializer.class, "Irregular case of display name serialization: %s".formatted(displayName));
-//            return MINI_MESSAGE_PARSER.serialize(displayName);
-//        }
-//
-//
-//
-//        return MINI_MESSAGE_PARSER.serialize(displayName);
-    }
-
-    private static boolean isTextComponentEmpty(Component component) {
-        if (component instanceof TextComponent tc && !tc.content().isEmpty()) return false;
-
-        for (final Component c : component.children()) {
-            if (c instanceof final TextComponent tc && !tc.content().isEmpty()) return false;
-            if (!c.children().isEmpty() && !isTextComponentEmpty(c)) return false;
-        }
-
-        return true;
+        return MINI_MESSAGE.serialize(displayName).replaceAll("<[^>]*lang:chat\\.square_brackets[^>]*:'([^']*)'>", "$1");
     }
 }

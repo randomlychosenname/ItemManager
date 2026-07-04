@@ -9,10 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 This is a minor update for the plugin, mostly updating the underlying structure.
 
+### Added
+
+- Added a guide for item configuration, as well as to 'items.yml' itself.
+- Added a field for custom model data. It is set as optional to not break configs. It will be added automatically
+  to all new items. You may use it for resource packs!
+
 ### Changed
 
 - Updated serialization/deserialization system to address future maintainability.
-- Added a guide for item configuration, as well as to 'items.yml' itself.
+- Update link leads to the plugin's webpage on PaperMC now.
+- Now the plugin supports storage of namespaced keys not only for default enchantments and attributes. However, those
+  are still used with the default registry access.
+- Attempted to improve display name parsing. Whenever an item is added via a command, its translatable key is stored,
+  so that whenever you view with a different language, it shows it differently. Only for default names.
 
 ## [1.0.1] - 2026-07-03
 

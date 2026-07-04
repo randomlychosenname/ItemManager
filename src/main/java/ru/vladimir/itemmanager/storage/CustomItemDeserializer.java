@@ -23,7 +23,7 @@ import java.util.*;
 final class CustomItemDeserializer {
 
     private static final String LOG_SOURCE = "CustomItemDeserializer";
-    private static final MiniMessage MINI_MESSAGE_PARSER = MiniMessage.miniMessage();
+    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
 
     private CustomItemDeserializer() {}
 
@@ -37,6 +37,8 @@ final class CustomItemDeserializer {
 
         final List<Component> lore = resolveLore(itemId, itemEntry.getList("lore"));
         if (lore == null) return null;
+
+        final int customModelDataId = resolveCustomModelDataId(itemId, itemEntry.getInt("model-id", -1));
 
         final Map<Enchantment, Integer> enchantments = resolveEnchantments(itemId, itemEntry.getList("enchantments"));
         if (enchantments == null) return null;
@@ -52,6 +54,7 @@ final class CustomItemDeserializer {
 
         meta.displayName(displayName);
         meta.lore(lore);
+        meta.setCustomModelData(customModelDataId);
 
         for (final Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
             meta.addEnchant(entry.getKey(), entry.getValue(), true);
@@ -100,7 +103,7 @@ final class CustomItemDeserializer {
             return null;
         }
 
-        return MINI_MESSAGE_PARSER.deserialize(rawDisplayName);
+        return MINI_MESSAGE.deserialize("<!italic>" + rawDisplayName);
     }
 
     private static List<Component> resolveLore(String itemId, List<?> rawLore) {
@@ -114,10 +117,14 @@ final class CustomItemDeserializer {
         final List<Component> lore = new ArrayList<>();
 
         for (final Object rawLine : rawLore) {
-            lore.add(MINI_MESSAGE_PARSER.deserialize(String.valueOf(rawLine)));
+            lore.add(MINI_MESSAGE.deserialize(String.valueOf(rawLine)));
         }
 
         return lore;
+    }
+
+    private static int resolveCustomModelDataId(String itemId, int modelDataId) {
+        return modelDataId;
     }
 
     private static Map<Enchantment, Integer> resolveEnchantments(String itemId, List<?> rawEnchantments) {
@@ -295,7 +302,7 @@ final class CustomItemDeserializer {
                     continue;
                 }
 
-                if (!rawModifier.containsKey("operation") || !rawModifier.containsKey("amount") || !rawModifier.containsKey("slot")) {
+                if (!rawModifier.containsKey("operation") || !rawModifier.containsKey("amount")) {
                     Logger.getInstance().warn(LOG_SOURCE,
                             "Item '%s' attribute '%s' modifier missing fields: %s".formatted(itemId, rawKey, rawModifier)
                     );
@@ -331,7 +338,7 @@ final class CustomItemDeserializer {
                     continue;
                 }
 
-                final String slotName = String.valueOf(rawModifier.get("slot"))
+                final String slotName = String.valueOf(rawModifier.get("slot") == null ? "any" : rawModifier.get("slot"))
                         .replace(" ", "")
                         .toLowerCase(Locale.ROOT);
 
@@ -388,6 +395,11 @@ final class CustomItemDeserializer {
                 Logger.getInstance().warn(LOG_SOURCE,
                         "Item '%s' invalid persistent key format (expected namespace:key): '%s'".formatted(itemId, rawKeyString)
                 );
+                continue;
+            }
+
+            if (rawKeyParts.length == 1) {
+                keys.add(new NamespacedKey(pluginName, rawKeyParts[0]));
                 continue;
             }
 

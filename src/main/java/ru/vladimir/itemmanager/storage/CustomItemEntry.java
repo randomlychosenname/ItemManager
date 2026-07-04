@@ -6,6 +6,7 @@ record CustomItemEntry(
         String materialName,
         String displayName,
         List<String> lore,
+        int customModelDataId,
         List<EnchantmentEntry> enchantmentEntries,
         List<AttributeEntry> attributeEntries,
         Set<String> keys
@@ -14,6 +15,7 @@ record CustomItemEntry(
             String materialName,
             String displayName,
             List<String> lore,
+            int customModelDataId,
             List<EnchantmentEntry> enchantmentEntries,
             List<AttributeEntry> attributeEntries,
             Set<String> keys
@@ -21,6 +23,7 @@ record CustomItemEntry(
         this.materialName = materialName.strip().toUpperCase(Locale.ROOT).replaceAll("\\s", "_");
         this.displayName = displayName;
         this.lore = lore;
+        this.customModelDataId = customModelDataId;
         this.enchantmentEntries = enchantmentEntries;
         this.attributeEntries = attributeEntries;
         this.keys = keys;
@@ -51,6 +54,7 @@ record CustomItemEntry(
                 "material", materialName,
                 "display-name", displayName,
                 "lore", lore,
+                "model-id", customModelDataId,
                 "enchantments", enchantmentEntriesToMap(),
                 "attributes", attributeEntriesToMap(),
                 "keys", keys
