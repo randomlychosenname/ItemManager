@@ -1,4 +1,4 @@
-package ru.vladimir.itemmanager.command;
+package ru.yolta.itemmanager.command;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -9,14 +9,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-import ru.vladimir.itemmanager.command.list.AddItem;
-import ru.vladimir.itemmanager.command.list.GiveItem;
-import ru.vladimir.itemmanager.command.list.ListItems;
-import ru.vladimir.itemmanager.command.list.PluginHelp;
-import ru.vladimir.itemmanager.command.list.ReloadPlugin;
-import ru.vladimir.itemmanager.command.list.RemoveItem;
-import ru.vladimir.itemmanager.config.MessageConfig;
-import ru.vladimir.itemmanager.utils.Logger;
+import ru.yolta.itemmanager.command.list.AddItem;
+import ru.yolta.itemmanager.command.list.GiveItem;
+import ru.yolta.itemmanager.command.list.ListItems;
+import ru.yolta.itemmanager.command.list.PluginHelp;
+import ru.yolta.itemmanager.command.list.ReloadPlugin;
+import ru.yolta.itemmanager.command.list.RemoveItem;
+import ru.yolta.itemmanager.config.MessageConfig;
+import ru.yolta.itemmanager.utils.Logger;
 
 public final class CommandService {
     private final Map<String, SubCommandWrapper> subCommandRegistry;

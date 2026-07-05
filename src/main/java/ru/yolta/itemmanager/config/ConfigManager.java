@@ -1,4 +1,4 @@
-package ru.vladimir.itemmanager.config;
+package ru.yolta.itemmanager.config;
 
 import java.io.File;
 
@@ -6,8 +6,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 
-import ru.vladimir.itemmanager.ItemManager;
-import ru.vladimir.itemmanager.utils.Logger;
+import ru.yolta.itemmanager.ItemManager;
+import ru.yolta.itemmanager.utils.Logger;
 
 public final class ConfigManager {
 

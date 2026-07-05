@@ -1,4 +1,4 @@
-package ru.vladimir.itemmanager.command;
+package ru.yolta.itemmanager.command;
 
 import java.util.List;
 
@@ -8,8 +8,8 @@ import org.bukkit.command.TabExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import ru.vladimir.itemmanager.config.MessageConfig;
-import ru.vladimir.itemmanager.utils.Messenger;
+import ru.yolta.itemmanager.config.MessageConfig;
+import ru.yolta.itemmanager.utils.Messenger;
 
 public final class ItemManagerCommand implements TabExecutor {
 

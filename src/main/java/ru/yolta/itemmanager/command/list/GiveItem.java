@@ -1,4 +1,4 @@
-package ru.vladimir.itemmanager.command.list;
+package ru.yolta.itemmanager.command.list;
 
 import java.util.List;
 import java.util.Map;
@@ -14,10 +14,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import org.jetbrains.annotations.Unmodifiable;
-import ru.vladimir.itemmanager.ItemManager;
-import ru.vladimir.itemmanager.command.SubCommand;
-import ru.vladimir.itemmanager.config.MessageConfig;
-import ru.vladimir.itemmanager.utils.Messenger;
+import ru.yolta.itemmanager.ItemManager;
+import ru.yolta.itemmanager.command.SubCommand;
+import ru.yolta.itemmanager.config.MessageConfig;
+import ru.yolta.itemmanager.utils.Messenger;
 
 public final class GiveItem implements SubCommand {
 

@@ -1,4 +1,4 @@
-package ru.vladimir.itemmanager.storage;
+package ru.yolta.itemmanager.storage;
 
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
@@ -16,7 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import ru.vladimir.itemmanager.utils.Logger;
+import ru.yolta.itemmanager.utils.Logger;
 
 import java.util.*;
 

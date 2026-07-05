@@ -1,4 +1,4 @@
-package ru.vladimir.itemmanager.storage;
+package ru.yolta.itemmanager.storage;
 
 import java.util.*;
 

@@ -1,4 +1,4 @@
-package ru.vladimir.itemmanager.utils;
+package ru.yolta.itemmanager.utils;
 
 import java.util.Map;
 

@@ -1,7 +1,7 @@
-package ru.vladimir.itemmanager.config;
+package ru.yolta.itemmanager.config;
 
 import org.jetbrains.annotations.NotNull;
-import ru.vladimir.itemmanager.utils.Logger;
+import ru.yolta.itemmanager.utils.Logger;
 
 public record GeneralConfig(
     @NotNull Logger.LogLevel loggingLevel

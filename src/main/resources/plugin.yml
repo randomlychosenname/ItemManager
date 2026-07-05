@@ -1,9 +1,10 @@
 name: ItemManager
 api-version: 1.21
+author: YoLTa
 version: ${version}
-main: ru.vladimir.itemmanager.ItemManager
+main: ru.yolta.itemmanager.ItemManager
 description: A powerful item management plugin.
-website: https://github.com/randomlychosenname/ItemManager
+website: https://github.com/wiore64/ItemManager
 
 commands:
   itemmanager:

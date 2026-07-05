@@ -1,17 +1,17 @@
-package ru.vladimir.itemmanager;
+package ru.yolta.itemmanager;
 
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import ru.vladimir.itemmanager.api.ItemManagerApi;
-import ru.vladimir.itemmanager.command.CommandService;
-import ru.vladimir.itemmanager.command.ItemManagerCommand;
-import ru.vladimir.itemmanager.config.ConfigManager;
-import ru.vladimir.itemmanager.storage.CustomItemBuilder;
-import ru.vladimir.itemmanager.storage.CustomItemStorage;
-import ru.vladimir.itemmanager.utils.Logger;
-import ru.vladimir.itemmanager.utils.UpdateChecker;
+import ru.yolta.itemmanager.api.ItemManagerApi;
+import ru.yolta.itemmanager.command.CommandService;
+import ru.yolta.itemmanager.command.ItemManagerCommand;
+import ru.yolta.itemmanager.config.ConfigManager;
+import ru.yolta.itemmanager.storage.CustomItemBuilder;
+import ru.yolta.itemmanager.storage.CustomItemStorage;
+import ru.yolta.itemmanager.utils.Logger;
+import ru.yolta.itemmanager.utils.UpdateChecker;
 
 public final class ItemManager extends JavaPlugin {
 

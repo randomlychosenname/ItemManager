@@ -1,4 +1,4 @@
-package ru.vladimir.itemmanager.api;
+package ru.yolta.itemmanager.api;
 
 import java.util.Optional;
 import java.util.Set;
@@ -7,9 +7,9 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-import ru.vladimir.itemmanager.ItemManager;
-import ru.vladimir.itemmanager.storage.CustomItemBuilder;
-import ru.vladimir.itemmanager.storage.CustomItemStorage;
+import ru.yolta.itemmanager.ItemManager;
+import ru.yolta.itemmanager.storage.CustomItemBuilder;
+import ru.yolta.itemmanager.storage.CustomItemStorage;
 
 public final class ItemManagerApi {
 

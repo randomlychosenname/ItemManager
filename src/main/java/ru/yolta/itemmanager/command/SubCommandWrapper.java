@@ -1,4 +1,4 @@
-package ru.vladimir.itemmanager.command;
+package ru.yolta.itemmanager.command;
 
 import java.util.Set;
 

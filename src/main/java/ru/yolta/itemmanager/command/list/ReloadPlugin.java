@@ -1,4 +1,4 @@
-package ru.vladimir.itemmanager.command.list;
+package ru.yolta.itemmanager.command.list;
 
 import java.util.List;
 import java.util.Map;
@@ -10,28 +10,31 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import org.jetbrains.annotations.Unmodifiable;
-import ru.vladimir.itemmanager.command.SubCommand;
-import ru.vladimir.itemmanager.config.MessageConfig;
-import ru.vladimir.itemmanager.utils.Messenger;
+import ru.yolta.itemmanager.ItemManager;
+import ru.yolta.itemmanager.command.SubCommand;
+import ru.yolta.itemmanager.config.MessageConfig;
+import ru.yolta.itemmanager.utils.Messenger;
 
-public final class PluginHelp implements SubCommand {
+public final class ReloadPlugin implements SubCommand {
 
-    private static final Set<String> ALIASES = Set.of("help");
-    private static final Permission PERMISSION = new Permission("itemmanager.command.help");
+    private static final Set<String> ALIASES = Set.of("reload");
+    private static final Permission PERMISSION = new Permission("itemmanager.command.reload");
     private final MessageConfig messages;
 
-    public PluginHelp(@NotNull MessageConfig messages) {
+    public ReloadPlugin(@NotNull MessageConfig messages) {
         this.messages = messages;
     }
 
     @Override
     public void onCommand(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
         if (args.length != 1) {
-            Messenger.sendMessage(sender, messages.invalidArguments(), Map.of("USAGE", "/itemmanager help"));
+            Messenger.sendMessage(sender, messages.invalidArguments(), Map.of("USAGE", "/itemmanager reload"));
             return;
         }
 
-        Messenger.sendMessage(sender, messages.pluginHelp());
+        ItemManager.getApi().reloadPlugin();
+
+        Messenger.sendMessage(sender, messages.pluginReloaded());
     }
 
     @Override

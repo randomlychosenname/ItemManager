@@ -1,4 +1,4 @@
-package ru.vladimir.itemmanager.storage;
+package ru.yolta.itemmanager.storage;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,7 +6,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import net.kyori.adventure.text.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -15,8 +14,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import ru.vladimir.itemmanager.ItemManager;
-import ru.vladimir.itemmanager.utils.Logger;
+import ru.yolta.itemmanager.ItemManager;
+import ru.yolta.itemmanager.utils.Logger;
 
 public final class CustomItemStorage {
 

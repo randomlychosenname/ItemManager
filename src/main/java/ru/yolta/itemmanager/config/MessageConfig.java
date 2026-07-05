@@ -1,4 +1,4 @@
-package ru.vladimir.itemmanager.config;
+package ru.yolta.itemmanager.config;
 
 import org.jetbrains.annotations.NotNull;
 
