@@ -57,7 +57,7 @@ public final class CustomItemStorage {
                 continue;
             }
 
-            final byte[] parsedItemData = CustomItemDeserializer.deserializeItem(plugin.getName().toLowerCase(Locale.ROOT), itemId, section);
+            final byte[] parsedItemData = CustomItemDeserializer.deserializeItem(ItemManager.getPrefix().toLowerCase(Locale.ROOT), itemId, section);
             if (parsedItemData == null) {
                 Logger.getInstance().warn(this, "Failed to parse '%s'.".formatted(itemId));
                 continue;
