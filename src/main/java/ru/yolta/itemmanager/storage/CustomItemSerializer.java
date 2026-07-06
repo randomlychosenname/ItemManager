@@ -12,19 +12,19 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import ru.yolta.itemmanager.utils.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 final class CustomItemSerializer {
+
+    private static final String LOG_SOURCE = "CustomItemSerializer";
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
 
     private CustomItemSerializer() {}
 
-    static void serializeItemAndWriteToSection(ItemStack item, ConfigurationSection section) {
+    static void serializeItemAndWriteToSection(@NotNull ItemStack item, @NotNull ConfigurationSection section) {
         final CustomItemEntry entry = serializeItem(item);
-
-        Logger.getInstance().info("TEST", "Serializing: %s".formatted(entry));
 
         section.set("internal-id", entry.internalId().toString());
         section.set("material", entry.materialName());
@@ -36,7 +36,7 @@ final class CustomItemSerializer {
         section.set("keys", entry.keys() == null ? null : List.copyOf(entry.keys()));
     }
 
-    static CustomItemEntry serializeItem(ItemStack item) {
+    static @NotNull CustomItemEntry serializeItem(@NotNull ItemStack item) {
         final Material material = item.getType();
         final String materialName = material.toString();
 
@@ -60,14 +60,12 @@ final class CustomItemSerializer {
             }
         }
 
-        final Map<Enchantment, Integer> enchantments = item.getEnchantments().isEmpty()
-                ? null
-                : item.getEnchantments();
-        final List<CustomItemEntry.EnchantmentEntry> rawEnchantments = enchantments == null
+        final Map<Enchantment, Integer> enchantments = item.getEnchantments();
+        final List<CustomItemEntry.EnchantmentEntry> rawEnchantments = enchantments.isEmpty()
                 ? null
                 : new ArrayList<>(enchantments.size());
 
-        if (enchantments != null) {
+        if (!enchantments.isEmpty()) {
             for (final Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
                 rawEnchantments.add(new CustomItemEntry.EnchantmentEntry(entry.getKey().getKey().toString(), entry.getValue()));
             }
@@ -77,9 +75,7 @@ final class CustomItemSerializer {
                 ? meta.getCustomModelData()
                 : null;
 
-        final Multimap<Attribute, AttributeModifier> attributes = meta.getAttributeModifiers() == null
-                ? null
-                : meta.getAttributeModifiers();
+        final Multimap<Attribute, AttributeModifier> attributes = meta.getAttributeModifiers();
         final List<CustomItemEntry.AttributeEntry> rawAttributes = attributes == null
                 ? null
                 : new ArrayList<>(attributes.keys().size());
@@ -105,12 +101,13 @@ final class CustomItemSerializer {
         final Set<NamespacedKey> keys = item.getPersistentDataContainer().getKeys();
         final Set<String> rawKeys = keys.isEmpty()
                 ? null
-                : new HashSet<>();
+                : new HashSet<>(keys.size());
 
         if (!keys.isEmpty()) {
             for (final NamespacedKey key : keys) {
-                if (key.equals(CustomItemStorage.ITEM_ISSUED_BY_CIM_NAMESPACEDKEY)) continue;
-                if (key.getNamespace().equals(CustomItemStorage.ITEM_INTERNAL_ID_FOR_CIM_NAMESPACE)) continue;
+                if (key.equals(CustomItemStorage.CIM_ITEM_NAMESPACEDKEY) ||
+                        key.getNamespace().equals(CustomItemStorage.CIM_ITEM_INTERNAL_ID_NAMESPACE))
+                    continue;
 
                 rawKeys.add(key.toString());
             }

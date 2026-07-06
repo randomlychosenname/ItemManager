@@ -19,13 +19,16 @@ import ru.yolta.itemmanager.utils.Logger;
 
 public final class CustomItemStorage {
 
-    static final NamespacedKey ITEM_ISSUED_BY_CIM_NAMESPACEDKEY = new NamespacedKey(ItemManager.getPluginShortName().toLowerCase(Locale.ROOT), "item");
-    static final String ITEM_INTERNAL_ID_FOR_CIM_NAMESPACE = "cim_internal_id";
+    static final NamespacedKey CIM_ITEM_NAMESPACEDKEY = new NamespacedKey(ItemManager.getPrefix().toLowerCase(Locale.ROOT), "item");
+    static final String CIM_ITEM_INTERNAL_ID_NAMESPACE = "cim_internal_id";
+
     private static final String FILE_STORAGE_NAME = "items.yml";
     private final ItemManager plugin;
     private final File configFile;
     private final Map<String, byte[]> itemRegistry;
+    // HIDDEN RELATIONSHIP -- START
     private final AtomicBoolean invalidateBuilderCache;
+    // HIDDEN RELATIONSHIP -- END
 
     public CustomItemStorage(@NotNull ItemManager plugin) {
         Logger.getInstance().debug(this, "Initializing...");
@@ -50,7 +53,7 @@ public final class CustomItemStorage {
             
             final ConfigurationSection section = itemConfig.getConfigurationSection(itemId);
             if (section == null) {
-                Logger.getInstance().warn(this, "Item '%s' is not a configuration section.".formatted(itemId));
+                Logger.getInstance().warn(this, "Item '%s' is not a config section.".formatted(itemId));
                 continue;
             }
 
@@ -63,6 +66,8 @@ public final class CustomItemStorage {
             itemRegistry.put(itemId, parsedItemData);
         }
 
+        // Should save it during refresh or handle it differently?
+        // In reference to the management of internal IDs
         saveItemConfig(itemConfig);
 
         registryRefreshed();

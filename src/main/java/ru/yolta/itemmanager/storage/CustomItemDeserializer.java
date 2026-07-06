@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
 import ru.yolta.itemmanager.utils.Logger;
 
 import java.util.*;
@@ -27,7 +28,7 @@ final class CustomItemDeserializer {
 
     private CustomItemDeserializer() {}
 
-    static byte[] deserializeItem(String pluginName, String itemId, ConfigurationSection itemEntry) {
+    static byte[] deserializeItem(@NotNull String pluginName, @NotNull String itemId, @NotNull ConfigurationSection itemEntry) {
         final Material material = resolveMaterial(itemId, itemEntry.getString("material"));
         if (material == null) return null;
 
@@ -60,8 +61,6 @@ final class CustomItemDeserializer {
 
         item.setItemMeta(meta);
 
-        Logger.getInstance().info("TEST", "Deserializing: %s".formatted(item));
-
         return item.serializeAsBytes();
     }
 
@@ -77,7 +76,7 @@ final class CustomItemDeserializer {
 
         if (material == null) {
             Logger.getInstance().warn(LOG_SOURCE,
-                    "Item '%s' invalid material '%s'".formatted(itemId, materialName)
+                    "Item '%s' invalid material: %s".formatted(itemId, materialName)
             );
             return null;
         }
@@ -144,7 +143,7 @@ final class CustomItemDeserializer {
 
             if (!addedEnchantmentKeys.add(rawKey)) {
                 Logger.getInstance().warn(LOG_SOURCE,
-                        "Item '%s' duplicate enchantment key: '%s'".formatted(itemId, rawKey)
+                        "Item '%s' duplicate enchantment key: %s".formatted(itemId, rawKey)
                 );
                 continue;
             }
@@ -293,7 +292,7 @@ final class CustomItemDeserializer {
                     operation = AttributeModifier.Operation.valueOf(operationName);
                 } catch (IllegalArgumentException e) {
                     Logger.getInstance().warn(LOG_SOURCE,
-                            "Item '%s' attribute '%s' invalid operation: '%s'".formatted(itemId, rawKey, operationName)
+                            "Item '%s' attribute '%s' invalid operation: %s".formatted(itemId, rawKey, operationName)
                     );
                     continue;
                 }
@@ -307,7 +306,7 @@ final class CustomItemDeserializer {
                     amount = Double.parseDouble(rawAmount);
                 } catch (NumberFormatException e) {
                     Logger.getInstance().warn(LOG_SOURCE,
-                            "Item '%s' attribute '%s' invalid amount: '%s'".formatted(itemId, rawKey, rawAmount)
+                            "Item '%s' attribute '%s' invalid amount: %s".formatted(itemId, rawKey, rawAmount)
                     );
                     continue;
                 }
@@ -320,7 +319,7 @@ final class CustomItemDeserializer {
 
                 if (slotGroup == null) {
                     Logger.getInstance().warn(LOG_SOURCE,
-                            "Item '%s' attribute '%s' invalid slot: '%s'".formatted(itemId, rawKey, slotName)
+                            "Item '%s' attribute '%s' invalid slot: %s".formatted(itemId, rawKey, slotName)
                     );
                     continue;
                 }
@@ -381,33 +380,35 @@ final class CustomItemDeserializer {
     private static Set<NamespacedKey> resolveInternalKeys(String itemId, ConfigurationSection itemEntry) {
         final Set<NamespacedKey> internalKeys = new HashSet<>(2);
 
-        internalKeys.add(CustomItemStorage.ITEM_ISSUED_BY_CIM_NAMESPACEDKEY);
+        internalKeys.add(CustomItemStorage.CIM_ITEM_NAMESPACEDKEY);
 
         final String internalId = itemEntry.getString("internal-id");
 
         if (internalId == null) {
             Logger.getInstance().debug(LOG_SOURCE,
-                    "Item '%s' missing internal key. Generating a new one...".formatted(itemId)
+                    "Item '%s' missing internal ID. Generating a new one...".formatted(itemId)
             );
 
             final String newInternalId = UUID.randomUUID().toString();
 
             itemEntry.set("internal-id", newInternalId);
-            internalKeys.add(new NamespacedKey(CustomItemStorage.ITEM_INTERNAL_ID_FOR_CIM_NAMESPACE, newInternalId));
-        } else {
-            try {
-                UUID.fromString(internalId);
-                internalKeys.add(new NamespacedKey(CustomItemStorage.ITEM_INTERNAL_ID_FOR_CIM_NAMESPACE, internalId));
-            } catch (IllegalArgumentException e) {
-                Logger.getInstance().debug(LOG_SOURCE,
-                        "Item '%s' missing internal key. Generating a new one...".formatted(itemId)
-                );
+            internalKeys.add(new NamespacedKey(CustomItemStorage.CIM_ITEM_INTERNAL_ID_NAMESPACE, newInternalId));
 
-                final String newInternalId = UUID.randomUUID().toString();
+            return internalKeys;
+        }
 
-                itemEntry.set("internal-id", newInternalId);
-                internalKeys.add(new NamespacedKey(CustomItemStorage.ITEM_INTERNAL_ID_FOR_CIM_NAMESPACE, newInternalId));
-            }
+        try {
+            UUID.fromString(internalId);
+            internalKeys.add(new NamespacedKey(CustomItemStorage.CIM_ITEM_INTERNAL_ID_NAMESPACE, internalId));
+        } catch (IllegalArgumentException e) {
+            Logger.getInstance().warn(LOG_SOURCE,
+                    "Item '%s' invalid internal key. Generating a new one...".formatted(itemId)
+            );
+
+            final String newInternalId = UUID.randomUUID().toString();
+
+            itemEntry.set("internal-id", newInternalId);
+            internalKeys.add(new NamespacedKey(CustomItemStorage.CIM_ITEM_INTERNAL_ID_NAMESPACE, newInternalId));
         }
 
         return internalKeys;

@@ -25,9 +25,6 @@
 #   material: DIRT
 #   display-name: <brown>Mythic Dirt</brown>
 #   lore: [ "A crazy story behind it..." ]
-#   enchantments: []
-#   attributes: []
-#   keys: []
 
 # An Advanced Example
 # example_item:

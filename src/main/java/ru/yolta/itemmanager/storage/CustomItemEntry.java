@@ -36,7 +36,7 @@ record CustomItemEntry(
         this.keys = keys;
     }
 
-    List<Map<String, ?>> enchantmentEntriesToMap() {
+    @Nullable List<Map<String, ?>> enchantmentEntriesToMap() {
         if (enchantmentEntries == null) return null;
 
         final List<Map<String, ?>> enchantments = new ArrayList<>();
@@ -48,7 +48,7 @@ record CustomItemEntry(
         return List.copyOf(enchantments);
     }
 
-    List<Map<String, ?>> attributeEntriesToMap() {
+    @Nullable List<Map<String, ?>> attributeEntriesToMap() {
         if (attributeEntries == null) return null;
 
         final List<Map<String, ?>> attributes = new ArrayList<>();
@@ -110,8 +110,8 @@ record CustomItemEntry(
         }
     }
 
-    record AttributeModifierEntry(@NotNull String operationName, double amount, @Nullable String slotName) {
-        AttributeModifierEntry(@NotNull String operationName, double amount, @Nullable String slotName) {
+    record AttributeModifierEntry(@NotNull String operationName, double amount, @NotNull String slotName) {
+        AttributeModifierEntry(@NotNull String operationName, double amount, @NotNull String slotName) {
             this.operationName = operationName.replace(" ", "").toUpperCase(Locale.ROOT);
             this.amount = amount;
             this.slotName = slotName.replace(" ", "").toUpperCase(Locale.ROOT);

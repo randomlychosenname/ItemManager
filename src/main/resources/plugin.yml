@@ -1,18 +1,14 @@
 name: ItemManager
 api-version: 1.21
-author: YoLTa
 version: ${version}
 main: ru.yolta.itemmanager.ItemManager
+
 description: A powerful item management plugin.
+author: YoLTa
 website: https://github.com/wiore64/ItemManager
 
-commands:
-  itemmanager:
-    description: The main command for ItemManager.
-    usage: /<command> <add|remove|give|list|help|reload>
-    permission: itemmanager.command
-    permission-message: You do not have permission to use this command.
-    aliases: [im, imanager, itemm]
+load: POSTWORLD
+prefix: ItemManager
 
 permissions:
   itemmanager.*:
@@ -66,3 +62,11 @@ permissions:
     default: op
     children:
       itemmanager.command: true
+
+commands:
+  itemmanager:
+    description: The main command for ItemManager.
+    usage: /<command> <add|remove|give|list|help|reload>
+    permission: itemmanager.command
+    permission-message: You do not have permission to use this command.
+    aliases: [im, imanager, itemm]
