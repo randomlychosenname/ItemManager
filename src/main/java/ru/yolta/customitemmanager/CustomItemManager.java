@@ -4,7 +4,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import ru.yolta.customitemmanager.api.ItemManagerApi;
+import ru.yolta.customitemmanager.api.CustomItemManagerApi;
 import ru.yolta.customitemmanager.command.CommandService;
 import ru.yolta.customitemmanager.command.CustomItemManagerCommand;
 import ru.yolta.customitemmanager.config.ConfigManager;
@@ -15,11 +15,11 @@ import ru.yolta.customitemmanager.utils.UpdateChecker;
 
 public class CustomItemManager extends JavaPlugin {
 
-    private static final String PLUGIN_FULL_NAME = "CustomItemManager";
-    private static final String PLUGIN_SHORT_NAME = "CIM";
+    public static final String PLUGIN_NAME = "CustomItemManager";
+    public static final String PLUGIN_PREFIX = "CIM";
     private static final String MAIN_COMMAND_NAME = "customitemmanager";
-    private static final String PLUGIN_DOWNLOAD_LINK = "https://hangar.papermc.io/randomlychosenname/ItemManager/versions";
-    private static ItemManagerApi api;
+    private static final String PLUGIN_DOWNLOAD_LINK = "https://hangar.papermc.io/randomlychosenname/CustomItemManager/versions";
+    private static CustomItemManagerApi api;
     
     @Override
     public void onEnable() {
@@ -34,7 +34,7 @@ public class CustomItemManager extends JavaPlugin {
         final CustomItemStorage itemStorage = new CustomItemStorage(this);
         final CustomItemBuilder itemBuilder = new CustomItemBuilder(itemStorage);
 
-        api = new ItemManagerApi(this, itemStorage, itemBuilder);
+        api = new CustomItemManagerApi(this, itemStorage, itemBuilder);
 
         final CommandService commandService = new CommandService(configManager.getMessageConfig());
         final CustomItemManagerCommand commandHandler = new CustomItemManagerCommand(commandService, configManager.getMessageConfig());
@@ -70,15 +70,7 @@ public class CustomItemManager extends JavaPlugin {
         Logger.destroy();
     }
 
-    public static @NotNull String getPrefix()   {
-        return PLUGIN_SHORT_NAME;
-    }
-
-    public static @NotNull String getPluginFullName() {
-        return PLUGIN_FULL_NAME;
-    }
-
-    public static @NotNull ItemManagerApi getApi() {
+    public static @NotNull CustomItemManagerApi getApi() {
         if (api == null) 
             throw new IllegalStateException("Accessed API before it was initialized.");
         return api;

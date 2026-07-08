@@ -11,13 +11,13 @@ import ru.yolta.customitemmanager.CustomItemManager;
 import ru.yolta.customitemmanager.storage.CustomItemBuilder;
 import ru.yolta.customitemmanager.storage.CustomItemStorage;
 
-public final class ItemManagerApi {
+public final class CustomItemManagerApi {
 
     private final CustomItemManager plugin;
     private final CustomItemStorage itemStorage;
     private final CustomItemBuilder itemBuilder;
 
-    public ItemManagerApi(@NotNull CustomItemManager plugin, @NotNull CustomItemStorage itemStorage, @NotNull CustomItemBuilder itemBuilder) {
+    public CustomItemManagerApi(@NotNull CustomItemManager plugin, @NotNull CustomItemStorage itemStorage, @NotNull CustomItemBuilder itemBuilder) {
         this.plugin = plugin;
         this.itemStorage = itemStorage;
         this.itemBuilder = itemBuilder;

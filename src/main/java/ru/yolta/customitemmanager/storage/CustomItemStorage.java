@@ -19,8 +19,8 @@ import ru.yolta.customitemmanager.utils.Logger;
 
 public final class CustomItemStorage {
 
-    static final NamespacedKey CIM_ITEM_NAMESPACEDKEY = new NamespacedKey(CustomItemManager.getPrefix().toLowerCase(Locale.ROOT), "item");
-    static final String CIM_ITEM_INTERNAL_ID_NAMESPACE = "cim_internal_id";
+    static final NamespacedKey CIM_ITEM_NAMESPACEDKEY = new NamespacedKey(CustomItemManager.PLUGIN_NAME.toLowerCase(Locale.ROOT), "item");
+    static final String CIM_ITEM_INTERNAL_ID_NAMESPACE = CustomItemManager.PLUGIN_NAME.toLowerCase(Locale.ROOT) + "_internal_id";
 
     private static final String FILE_STORAGE_NAME = "items.yml";
     private final CustomItemManager plugin;
@@ -57,7 +57,11 @@ public final class CustomItemStorage {
                 continue;
             }
 
-            final byte[] parsedItemData = CustomItemDeserializer.deserializeItem(CustomItemManager.getPrefix().toLowerCase(Locale.ROOT), itemId, section);
+            final byte[] parsedItemData = CustomItemDeserializer.deserializeItem(
+                    CustomItemManager.PLUGIN_NAME.toLowerCase(Locale.ROOT),
+                    itemId,
+                    section
+            );
             if (parsedItemData == null) {
                 Logger.getInstance().warn(this, "Failed to parse '%s'.".formatted(itemId));
                 continue;
