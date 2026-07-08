@@ -10,6 +10,7 @@ import ru.yolta.customitemmanager.command.CustomItemManagerCommand;
 import ru.yolta.customitemmanager.config.ConfigManager;
 import ru.yolta.customitemmanager.storage.CustomItemBuilder;
 import ru.yolta.customitemmanager.storage.CustomItemStorage;
+import ru.yolta.customitemmanager.utils.GuideWriter;
 import ru.yolta.customitemmanager.utils.Logger;
 import ru.yolta.customitemmanager.utils.Messenger;
 import ru.yolta.customitemmanager.utils.UpdateChecker;
@@ -46,6 +47,8 @@ public class CustomItemManager extends JavaPlugin {
 
         command.setExecutor(commandHandler);
         command.setTabCompleter(commandHandler);
+
+        GuideWriter.ensureGuidesExist(this);
 
         if (UpdateChecker.isUpToDate(this.getPluginMeta().getVersion())) {
             Logger.getInstance().info(this, "You're up to date!");
