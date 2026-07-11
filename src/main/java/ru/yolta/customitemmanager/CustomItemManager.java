@@ -83,13 +83,19 @@ public class CustomItemManager extends JavaPlugin {
     public void onDisable() {
         Logger.info(PLUGIN_NAME, "Shutting down...");
 
+        final PluginCommand command = this.getCommand("customitemmanager");
+        if (command == null) throw new IllegalStateException("Command '%s' not found in plugin.yml".formatted("customitemmanager"));
+
+        command.setExecutor(null);
+        command.setTabCompleter(null);
+
         Messenger.setPrefix("");
 
         api = null;
 
-        Logger.info(PLUGIN_NAME, "Shut down successfully.");
-
         Logger.setLevel(Level.INFO);
+
+        Logger.info(PLUGIN_NAME, "Shut down successfully.");
     }
 
     public static @NotNull CustomItemManagerApi getApi() {
