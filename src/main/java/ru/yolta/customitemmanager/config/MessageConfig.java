@@ -60,7 +60,7 @@ public record MessageConfig(
         DEFAULT_VALUES = Map.copyOf(map);
     }
 
-    static @NotNull MessageConfig parseMessageConfig(@NotNull ConfigProvider manager, @NotNull File file, @NotNull FileConfiguration fileConfig) {
+    static @NotNull MessageConfig parseMessageConfig(@NotNull ConfigManager manager, @NotNull File file, @NotNull FileConfiguration fileConfig) {
         final int configVersion = fileConfig.getInt("config-version", -1);
 
         if (configVersion == -1) {

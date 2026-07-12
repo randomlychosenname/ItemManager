@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import ru.yolta.customitemmanager.api.CustomItemManagerApi;
 import ru.yolta.customitemmanager.command.CommandService;
 import ru.yolta.customitemmanager.command.CustomItemManagerCommand;
-import ru.yolta.customitemmanager.config.ConfigProvider;
+import ru.yolta.customitemmanager.config.ConfigManager;
 import ru.yolta.customitemmanager.storage.CustomItemBuilder;
 import ru.yolta.customitemmanager.storage.CustomItemStorage;
 import ru.yolta.customitemmanager.utils.Logger;
@@ -23,17 +23,17 @@ public final class CustomItemManager extends JavaPlugin {
     public void onEnable() {
         Logger.info(PLUGIN_NAME, "Hello! Loading up...");
 
-        final var configProvider = new ConfigProvider(this);
+        final var configManager = new ConfigManager(this);
 
-        Messenger.setPrefix(configProvider.getMessageConfig().prefix());
+        Messenger.setPrefix(configManager.getMessageConfig().prefix());
 
         final var itemStorage = new CustomItemStorage(this);
         final var itemBuilder = new CustomItemBuilder(itemStorage);
 
         api = new CustomItemManagerApi(this, itemStorage, itemBuilder);
 
-        final var commandService = new CommandService(configProvider.getMessageConfig());
-        final var commandHandler = new CustomItemManagerCommand(commandService, configProvider.getMessageConfig());
+        final var commandService = new CommandService(configManager.getMessageConfig());
+        final var commandHandler = new CustomItemManagerCommand(commandService, configManager.getMessageConfig());
 
         final PluginCommand command = this.getCommand("customitemmanager");
         if (command == null) throw new IllegalStateException("Failed to find command in 'plugin.yml': customitemmanager");
@@ -43,7 +43,7 @@ public final class CustomItemManager extends JavaPlugin {
 
         checkUpdates();
 
-        Logger.info(PLUGIN_NAME, "Loaded successfully!");
+        Logger.info(PLUGIN_NAME, "Loaded successfully.");
     }
 
     private void checkUpdates() {
