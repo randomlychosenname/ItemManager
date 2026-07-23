@@ -376,8 +376,8 @@ public record MessageConfig(
                 Map.entry("invalid-model-id", "<red>This item's model id {MODEL} is invalid.</red>"),
 
                 Map.entry("unknown-enchantment", "<red>This item does not have the enchantment {ENCHANTMENT}.</red>"),
-                Map.entry("invalid-enchantment-level", "<red>Enchantment levels must be between 0 and 255.</red>"),
-                Map.entry("out-of-bounds-enchantment-level", "<red>Enchantment level {LEVEL} must be between 0 and 255.</red>"),
+                Map.entry("invalid-enchantment-level", "<red>Enchantment levels must be between 1 and 255.</red>"),
+                Map.entry("out-of-bounds-enchantment-level", "<red>Enchantment level {LEVEL} must be between 1 and 255.</red>"),
                 Map.entry("enchantment-already-present", "<red>This item already has the enchantment {ENCHANTMENT} at level {LEVEL}.</red>"),
                 Map.entry("enchantment-not-present", "<red>This item does not have the enchantment {ENCHANTMENT}.</red>"),
                 Map.entry("enchantment-updated", "<green>This item's enchantment was updated.</green>"),

@@ -8,14 +8,13 @@
 config-version: 2 # DO NOT MODIFY
 
 messages:
-  prefix: "<gradient:#F47854:#B67E54>[CIM]:</gradient>"
-
   main-cmd:
     no-permission: "<red>You do not have permission to run this command!</red>"
     plugin-description: "A <gold>powerful and centralized</gold> custom <aqua>item management</aqua> plugin."
     invalid-command: "<red>Unknown command.<red> Use <gold>/cim help.</gold>"
 
   shared-cmd:
+    prefix: "<gradient:#F47854:#B67E54>[CIM]:</gradient>"
     player-only-command: "<red>This command can only be used by players.</red>"
     invalid-arguments: "<red>Invalid arguments.</red> Usage: <gold>{USAGE}</gold>" # Placeholders: {USAGE}
     must-hold-item: "<gold>You must be holding an item.</gold>"
@@ -56,8 +55,8 @@ messages:
     invalid-model-id: "<red>This item's model id {MODEL} is invalid.</red>" # Placeholders: {MODEL}
 
     unknown-enchantment: "<red>This item does not have the enchantment {ENCHANTMENT}.</red>" # Placeholders: {ENCHANTMENT}
-    invalid-enchantment-level: "<red>Enchantment levels must be between 0 and 255.</red>" # Placeholders: {LEVEL}
-    out-of-bounds-enchantment-level: "<red>Enchantment level {LEVEL} must be between 0 and 255.</red>" # Placeholders: {LEVEL}
+    invalid-enchantment-level: "<red>Enchantment levels must be between 1 and 255.</red>" # Placeholders: {LEVEL}
+    out-of-bounds-enchantment-level: "<red>Enchantment level {LEVEL} must be between 1 and 255.</red>" # Placeholders: {LEVEL}
     enchantment-already-present: "<red>This item already has the enchantment {ENCHANTMENT} at level {LEVEL}.</red>" # Placeholders: {ENCHANTMENT}, {LEVEL}
     enchantment-not-present: "<red>This item does not have the enchantment {ENCHANTMENT}.</red>" # Placeholders: {ENCHANTMENT}
     enchantment-updated: "<green>This item's enchantment was updated.</green>"
